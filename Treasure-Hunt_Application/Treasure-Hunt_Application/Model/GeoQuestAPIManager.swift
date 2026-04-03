@@ -96,3 +96,21 @@ private struct DynamicKey: CodingKey
     init?(stringValue: String) { self.stringValue = stringValue }
     init?(intValue: Int) { self.intValue = intValue; self.stringValue = "\(intValue)" }
 }
+
+// MARK: - API Manager
+
+final class ApiManager
+{
+    static let shared = APIManager()
+    private int() {}
+    
+    private let apiKey = "aqnev4"
+    private let baseURL = "https://mark0s.com/geoquest/v1/api"
+    
+    private var urlSession: URLSession =
+    {
+        let config = URLSessionConfiguration.default
+        config.timeoutIntervalForRequest = 30
+        return URLSession(configuration: config)
+    }()
+}
