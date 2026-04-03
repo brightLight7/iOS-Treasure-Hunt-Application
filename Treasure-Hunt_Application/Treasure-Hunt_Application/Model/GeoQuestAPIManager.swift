@@ -377,4 +377,35 @@ final class ApiManager
     {
         try await delete("/caches/\(id)")
     }
+    
+    // MARK: - Finds
+    func getFinds() async throws -> [Find]
+    {
+        try await getArray("/finds")
+    }
+    
+    func getFind(id: String) async throws -> [Find]
+    {
+        try await getSingle("/finds/\(id)")
+    }
+    
+    func getFinds(forEventID eventID: String) async throws -> [Find]
+    {
+        try await getArray("/finds/events/\(eventID)")
+    }
+    
+    func getFinds(forPlayerID playerID: String) async throws -> [Find]
+    {
+        try await getArray("/finds/players/\(playerID)")
+    }
+    
+    func createFind(_ find: Find) async throws -> [Find]
+    {
+        try await postSingle("/finds", body: find)
+    }
+    
+    func deleteFind(id: String) async throws
+    {
+        try await delete("/finds/\(id)")
+    }
 }
