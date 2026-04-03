@@ -190,3 +190,51 @@ struct Player: Codable, Identifiable
         try container.encode(playerEventID, forKey: .playerEventID)
     }
 }
+
+// MARK: - Cache
+
+struct Cache: Codable, Identifiable
+{
+    let cacheID: FlexibleID
+    var cacheName: String
+    var cacheDescription: String
+    var cacheEventID: FlexibleID
+    var cacheImageURL: String
+    var cacheClue: String
+    var cachePoints: String
+    var cacheLatitude: String
+    var cacheLongitude: String
+    var cacheEvent: Event?
+    
+    var id: String { cacheID.value }
+    
+    enum CodingKeys: String, CodingKey
+    {
+        case cacheID = "cacheID"
+        case cacheName = "cacheName"
+        case cacheDescription = "cacheDescription"
+        case cacheEventID = "cacheEventID"
+        case cacheImageURL = "cacheImageURL"
+        case cacheClue = "cacheClue"
+        case cachePoints = "cachePoints"
+        case cacheLatitude = "cacheLatitude"
+        case cacheLongitude = "cacheLongitude"
+        case cacheEvent = "cacheEvent"
+    }
+    
+    func encode(to encoder: Encoder) throws
+    {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        if !cacheID.isNew { try container.encode(cacheID, forKey: .cacheID) }
+        
+        try container.encode(cacheName, forKey: .cacheName)
+        try container.encode(cacheDescription, forKey: .cacheDescription)
+        try container.encode(cacheEventID, forKey: .cacheEventID)
+        try container.encode(cacheImageURL ?? "https://placehold.co/300x300/png", forKey: .cacheImageURL)
+        try container.encode(cacheClue, forKey: .cacheClue)
+        try container.encode(cachePoints, forKey: .cachePoints)
+        try container.encode(cacheLatitude, forKey: .cacheLatitude)
+        try container.encode(cacheLongitude, forKey: .cacheLongitude)
+        try container.encode(cacheEvent, forKey: .cacheEvent)
+    }
+}
