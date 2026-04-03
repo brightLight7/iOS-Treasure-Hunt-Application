@@ -321,4 +321,30 @@ final class ApiManager
         try await getArray("/status")
     }
     
+    // MARK: - Players
+    func getPlayers() async throws -> [Player]
+    {
+        try await getArray("/players")
+    }
+    
+    func getPlayer(id: String) async throws -> [Player]
+    {
+        try await getSingle("/players/\(id)")
+    }
+    
+    func getPlayers(forEventID eventID: String) async throws -> [Player]
+    {
+        try await getArray("/players/events/\(eventID)")
+    }
+    
+    func createPlayer(_ player: Player) async throws -> [Player]
+    {
+        try await postSingle("/players", body: player)
+    }
+    
+    func deletePlayer(id: String) async throws
+    {
+        try await delete("/players/\(id)")
+    }
+    
 }
