@@ -113,4 +113,17 @@ final class ApiManager
         config.timeoutIntervalForRequest = 30
         return URLSession(configuration: config)
     }()
+    
+    
+    // MARK: - URL Builder
+    private func makeURL(_ path: String, extraParams: [String: String] = [:]) throws -> URL
+    {
+        var components = URLComponents(string: baseURL + path)
+        var queryItems = [URLQueryItem(name: "key", value: apiKey)]
+        extraParams.forEach { queryItems.append(URLQueryItem(name: $0.key, value: $0.value)) }
+        components?.queryItems = queryItems
+        guard let url = components?.url else { throw APIError.invalidURL }
+        return url
+    }
+
 }
