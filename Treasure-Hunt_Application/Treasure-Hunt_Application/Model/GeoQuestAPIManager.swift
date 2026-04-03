@@ -142,5 +142,99 @@ final class ApiManager
         }
         return data
     }
-
+    
+    // MARK: - Generic decoders
+    private func getArray<T: Decodable>(_path: String) async throws -> [T]
+    {
+        let url = try makeURL(path)
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        let (data, response) = try await urlSession.data(for: request)
+        guard let http = response as? HTTPURLResponse else { throw APIError.noData }
+        
+        if http.statusCode == 404
+        {
+            if let body = String(data: data, encoding: .utf8)
+            {
+                print("GET \(path) -> 404 (empty): \(body.prefix(200))")
+            }
+            return []
+        }
+        
+        guard (200..<300).contains(http.statusCode) else
+        {
+            if let body = String(data: data, encoding: .utf8)
+            {
+                print("API error \(http.statusCode): \(body)")
+            }
+            throw APIError.serverError(http.statusCode)
+        }
+        
+        if let str = String(data: data, encoding: .utf8)
+        {
+            print("GET \(path) response: \(str.prefix(300))")
+        }
+        return try JSONDecoder().decode(WrappedArray<T>.self, from: data).values
+    }
+    
+    private func getSingle<T: Decodable>(_path: String) async throws -> T
+    {
+        let url = try makeURL(path)
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        let data = try await fetchData(request)
+        return try JSONDecoder().decode(WrappedSingle<T>.self, from: data).value
+    }
+    
+    private func postSingle<T: Decodable, B: Encodable>(_path: String, body: B) async throws -> T
+    {
+        let url = try makeURL(path)
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        let encoded = try JSONEncoder().encode(body)
+        request.httpBody = encoded
+        if let str = String(data: encoded, encoding: .utf8)
+        {
+            print("POST \(path) body: \(str.prefix(500))")
+        }
+        let data = try await fetchData(request)
+        if let str = String(data: data, encoding: .utf8)
+        {
+            print("POST \(path) response: \(str.prefix(500))")
+        }
+        return try JSONDecoder().decode(WrappedSingle<T>.self, from: data).value
+    }
+    
+    private func putSingle<T: Decodable, B: Encodable>(_path: String, body: B) async throws -> T
+    {
+        let url = try makeURL(path)
+        var request = URLRequest(url: url)
+        request.httpMethod = "PUT"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        let encoded = try JSONEncoder().encode(body)
+        request.httpBody = encoded
+        if let str = String(data: encoded, encoding: .utf8)
+        {
+            print("PUT \(path) body: \(str.prefix(500))")
+        }
+        let data = try await fetchData(request)
+        if let str = String(data: data, encoding: .utf8)
+        {
+            print("PUT \(path) response: \(str.prefix(500))")
+        }
+        return try JSONDecoder().decode(WrappedSingle<T>.self, from: data).value
+    }
+    
+    private func delete(_ path: String) async throws
+    {
+        let url = try makeURL(path)
+        var request = URLRequest(url: url)
+        request.httpBody = "DELETE"
+        let (_,response) = try await urlSession.data(for: request)
+        guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else
+        {
+            throw APIError.serverError((response as? HTTPURLResponse)?.statusCode ?? 0)
+        }
+    }
 }
