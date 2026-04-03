@@ -237,4 +237,48 @@ final class ApiManager
             throw APIError.serverError((response as? HTTPURLResponse)?.statusCode ?? 0)
         }
     }
+    
+    // MARK: - Users
+    
+    func getUsersByUsername(_ username: String) async throws -> [User]
+    {
+        let url = try makeURL("/users", extraParams: ["UserUsername": username])
+        var request = URLRequest(url: url)
+        request.httpBody = "GET"
+        let data = try await fetchData(request)
+        if let str = String(data: data, encoding: .utf8)
+        {
+            print("GET /users?username response: \(str.prefix(200))")
+        }
+        return (try? JSONDecoder().decode(WrappedSingle<T>.self, from: data).values) ?? []
+    }
+    
+    func getUsers() async throws -> [User]
+    {
+        try await getArray("/users")
+    }
+    
+    func getUsers(id: String) async throws -> [User]
+    {
+        try await getSingle("/users/\(id)")
+    }
+    
+    func createUser(_ user: User) async throws -> [User]
+    {
+        try await postSingle("/users", body: user)
+    }
+    
+    func updateUser(_ user: User) async throws -> [User]
+    {
+        try await putSingle("/users/\(user.userID.value)", body: user)
+    }
+    
+    func updateUserLocation(user: User, latitude: Double, longitude: Double) async throws -> User
+    {
+        var updated = user
+        updated.userLatitude = latitude
+        updated.userLongitude = longitude
+        updated.userTimestamp = Date().timeIntervalSince1970
+        return try await updateUser(updated)
+    }
 }
