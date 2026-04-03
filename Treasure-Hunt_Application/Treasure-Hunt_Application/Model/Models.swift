@@ -238,3 +238,41 @@ struct Cache: Codable, Identifiable
         try container.encode(cacheEvent, forKey: .cacheEvent)
     }
 }
+
+// MARK: - Find
+
+struct Find: Codable, Identifiable
+{
+    let findID: FlexibleID
+    var findPlayerID: FlexibleID
+    var findCacheID: FlexibleID
+    var findDatetime: String
+    var findImageURL: String?
+    var findPlayer: Player?
+    var findCache: Cache?
+    
+    var id: String { findID.value }
+    var findDate: Date? {ISO8601DateFormatter().date(from: findDatetime)}
+    
+    enum CodingKeys: String, CodingKey
+    {
+        case findID = "findID"
+        case findPlayerID = "findPlayerID"
+        case findCacheID = "findCacheID"
+        case findDatetime = "findDatetime"
+        case findImageURL = "findImageURL"
+        case findPlayer = "findPlayer"
+        case findCache = "findCache"
+    }
+    
+    func encode(to encoder: Encoder) throws
+    {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        if !cacheID.isNew { try container.encode(findID, forKey: .findID) }
+        
+        try container.encode(findPlayerID, forKey: .findPlayerID)
+        try container.encode(findCacheID, forKey: .findCacheID)
+        try container.encode(findDatetime, forKey: .findDatetime)
+        try container.encode(findImageURL ?? "https://placehold.co/300x300/png", forKey: .findImageURL)
+    }
+}
