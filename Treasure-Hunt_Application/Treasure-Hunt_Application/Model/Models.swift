@@ -142,3 +142,21 @@ struct Event: Codable, Identifiable
         try container.encode(eventStatusID, forKey: .eventStatusID)
     }
 }
+
+// MARK: - Status
+
+struct Status: Codable, Identifiable
+{
+    let statusID: FlexibleID
+    var statusName: String?
+    var statusOrder: Int?
+    
+    var id: String { statusID?.value ?? UUID().uuidString }
+    
+    enum CodingKeys: String, CodingKey
+    {
+        case statusID = "StatusID"
+        case statusName = "statusName"
+        case statusOrder = "statusOrder"
+    }
+}
