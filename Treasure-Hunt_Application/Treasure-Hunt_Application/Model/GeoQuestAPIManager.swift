@@ -313,4 +313,12 @@ final class ApiManager
     {
         try await delete("/events/\(id)")
     }
+    
+    // MARK: - Status
+    
+    func getStatuses() async throws -> [Status]
+    {
+        try await getArray("/status")
+    }
+    
 }
