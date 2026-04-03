@@ -160,3 +160,33 @@ struct Status: Codable, Identifiable
         case statusOrder = "statusOrder"
     }
 }
+
+// MARK: - Player
+
+struct Player: Codable, Identifiable
+{
+    let playerID: FlexibleID
+    var playerUserID: FlexibleID
+    var playerEventID: FlexibleID
+    var playerUser: User?
+    var playerEvent: User?
+    
+    var id: String { playerID.value }
+    
+    enum CodingKeys: String, CodingKey
+    {
+        case playerID = "PlayerID"
+        case playerUserID = "playerUserID"
+        case playerEventID = "playerEventID"
+        case playerUser = "playerUser"
+        case playerEvent = "playerEvent"
+    }
+    
+    func encode(to encoder: Encoder) throws
+    {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        if !playerID.isNew { try container.encode(playerID, forKey: .playerID) }
+        try container.encode(playerUserID, forKey: .playerUserID)
+        try container.encode(playerEventID, forKey: .playerEventID)
+    }
+}
