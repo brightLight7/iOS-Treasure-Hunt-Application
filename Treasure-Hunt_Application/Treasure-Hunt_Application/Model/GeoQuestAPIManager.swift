@@ -33,3 +33,66 @@ enum APIError: LocalizedError
         }
     }
 }
+
+// MARK: - Flexible response wrappers
+
+private struct WrappedArray<T: Decodable>: Decodable
+{
+    let values: [T]
+    init (from decoder: Decoder) throws
+    {
+        if let arr = try? [T] (from: decoder)
+        {
+            values = arr
+            return
+        }
+        
+        let container = try decoder.container(keyedBy: DynamicKey.self)
+        for key in container.allKeys
+        {
+            if let arr = try? container.decode([T].self, forKey: key)
+            {
+                values = arr
+                return
+            }
+        }
+        values = []
+        
+    }
+}
+
+private struct WrappedSingle<T: Decodable>: Decodable
+{
+    let value: T
+    init (from: decoder: Decoder) throws
+    {
+        if let arr = try? [T](from: decoder), let first = arr.first
+        {
+            value = first
+            return
+        }
+        if let v = try? T(from decoder)
+        {
+            value = v
+            return
+        }
+        let container = try decoder.container(keyedBy: DynamicKey.self)
+        for key in container.allKeys
+        {
+            if let v = try? container.decode(T.self, forKey: key)
+            {
+                value = v
+                return
+            }
+        }
+        throw DecodingError.dataCorrupted(.init(codingPath: [], debugDescription: "Could not decode wrapped single"))
+    }
+}
+
+private struct DynamicKey: CodingKey
+{
+    var stringValue: String
+    var intValue: Int?
+    init?(stringValue: String) { self.stringValue = stringValue }
+    init?(intValue: Int) { self.intValue = intValue; self.stringValue = "\(intValue)" }
+}
