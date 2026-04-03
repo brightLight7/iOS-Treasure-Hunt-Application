@@ -347,4 +347,34 @@ final class ApiManager
         try await delete("/players/\(id)")
     }
     
+    // MARK: - Caches
+    func getCaches() async throws -> [Cache]
+    {
+        try await getArray("/caches")
+    }
+    
+    func getCache(id: String) async throws -> [Cache]
+    {
+        try await getSingle("/caches/\(id)")
+    }
+    
+    func getCaches(forEventID eventID: String) async throws -> [Cache]
+    {
+        try await getArray("/caches/events/\(eventID)")
+    }
+    
+    func createCache(_ cache: Cache) async throws -> [Cache]
+    {
+        try await postSingle("/caches", body: cache)
+    }
+    
+    func updateCache(_ cache: Cache) async throws -> [Cache]
+    {
+        try await putSingle("/caches/\(cache.cacheID)", body: cache)
+    }
+    
+    func deleteCache(id: String) async throws
+    {
+        try await delete("/caches/\(id)")
+    }
 }
