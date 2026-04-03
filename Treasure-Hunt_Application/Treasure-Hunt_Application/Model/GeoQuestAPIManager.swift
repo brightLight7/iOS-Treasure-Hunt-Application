@@ -281,4 +281,36 @@ final class ApiManager
         updated.userTimestamp = Date().timeIntervalSince1970
         return try await updateUser(updated)
     }
+    
+    // MARK: - Events
+    
+    func getEvents() async throws -> [Event]
+    {
+        try await getArray("/events")
+    }
+    
+    func getEvent(id: String) async throws -> [Event]
+    {
+        try await getSingle("/events/\(id)")
+    }
+    
+    func getEvents(forUserID userID: String) async throws -> [Event]
+    {
+        try await getArray("/events/users/\(userID)")
+    }
+    
+    func createEvent(_ event: Event) async throws -> [Event]
+    {
+        try await postSingle("/events", body: event)
+    }
+    
+    func updateEvent(_ event: Event) async throws -> [Event]
+    {
+        try await putSingle("/events/\(event.eventID)", body: event)
+    }
+    
+    func deleteEvent(id: String) async throws
+    {
+        try await delete("/events/\(id)")
+    }
 }
