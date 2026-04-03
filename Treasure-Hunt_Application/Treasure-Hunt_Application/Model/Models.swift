@@ -276,3 +276,21 @@ struct Find: Codable, Identifiable
         try container.encode(findImageURL ?? "https://placehold.co/300x300/png", forKey: .findImageURL)
     }
 }
+
+// MARK: - Local state helpers
+
+struct CacheWithStatus: Identifiable
+{
+    let cache: Cache
+    var isFound: Bool
+    var find: Find?
+    var id: String { cache.id }
+}
+
+struct LeaderBoardEntry: Identifiable
+{
+    let player: Player
+    let totalPoints: Double
+    let findCount: Int
+    var id: String { player.id }
+}
