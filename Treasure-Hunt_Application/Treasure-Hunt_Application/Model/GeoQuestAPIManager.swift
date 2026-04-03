@@ -125,5 +125,22 @@ final class ApiManager
         guard let url = components?.url else { throw APIError.invalidURL }
         return url
     }
+    
+    // MARK: - Raw data fetch
+    
+    private func fetchData(_ request: URLRequest) async throws -> Data
+    {
+        let (data, response) = try await urlSession.data(for: request)
+        guard let http = response as? HTTPURLResponse else { throw APIError.noData }
+        guard (200..<300).contains(http.statusCode) else
+        {
+            if let body = String(data: data, encoding: .utf8)
+            {
+                print("API error \(http.statusCode): \(body)")
+            }
+            throw APIError.serverError(http.statusCode)
+        }
+        return data
+    }
 
 }
