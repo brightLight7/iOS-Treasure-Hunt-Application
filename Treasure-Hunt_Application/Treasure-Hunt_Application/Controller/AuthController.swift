@@ -99,4 +99,22 @@ final class AuthController : ObservableObject
         currentUser = nil
         session.logout()
     }
+    
+    // MARK: - Update profile
+    func updateCurrentUser(_ user: User) async
+    {
+        isLoading = true
+        do
+        {
+            let updated = try await api.updateUser(user)
+            currentUser = updated
+            session.currentUser = updated
+        }
+        catch
+        {
+            currentUser = user
+            session.currentUser = user
+        }
+        isLoading = false
+    }
 }
