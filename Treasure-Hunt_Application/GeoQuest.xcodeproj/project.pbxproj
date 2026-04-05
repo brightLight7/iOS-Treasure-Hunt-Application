@@ -85,7 +85,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 0208C2792F7403B4007FD5EA /* Build configuration list for PBXProject "Treasure-Hunt_Application" */;
+			buildConfigurationList = 0208C2792F7403B4007FD5EA /* Build configuration list for PBXProject "GeoQuest" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -309,7 +309,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		0208C2792F7403B4007FD5EA /* Build configuration list for PBXProject "Treasure-Hunt_Application" */ = {
+		0208C2792F7403B4007FD5EA /* Build configuration list for PBXProject "GeoQuest" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				0208C2872F7403B6007FD5EA /* Debug */,
