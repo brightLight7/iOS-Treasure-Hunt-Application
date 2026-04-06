@@ -45,3 +45,11 @@ extension Data {
     }
 }
 
+// MARK: - Cache bearing from user
+
+extension Cache {
+    func bearing(from userLocation: CLLocation) -> Double {
+        userLocation.coordinate.bearing(to: CLLocationCoordinate2D(latitude: cacheLatitude, longitude: cacheLongitude))
+    }
+}
+
