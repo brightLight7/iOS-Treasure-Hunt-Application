@@ -31,5 +31,25 @@ final class MapController: ObservableObject {
     func setup(locationService: LocationService) {
         self.locationService = locationService
     }
+    
+    // MARK: - Load global caches
+    
+    func loadGlobalCaches() async {
+        isLoading = true
+        errorMessage = nil
+        do {
+            let allCaches = try await api.getCaches()
+            let allFinds = try await fetchCurrentPlayerFinds()
+            let foundCacheIDs = Set(allFinds.map { $0.findCacheID.value })
+            
+            caches = allCaches.map { cache in
+                let find = allFinds.first { $0.findCacheID.value == cache.cacheID.value }
+                return CacheWithStatus(cache: cache, isFound: foundCacheIDs.contains(cache.cacheID.value), find: find)
+            }
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+        isLoading = false
+    }
 }
 
