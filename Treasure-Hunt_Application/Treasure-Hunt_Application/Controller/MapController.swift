@@ -77,5 +77,40 @@ final class MapController: ObservableObject {
     func canUnlock(cache: Cache) -> Bool {
         locationService?.isNearby(cache: cache) ?? false
     }
+    
+    // MARK: - Log a find
+    
+    func logFind(for cache: Cache, imageURL: String? = nil) async -> Bool {
+        guard let user = session.currentUser else {
+            errorMessage = "Not logged in"
+            return false
+        }
+        
+        guard let pid = await resolvePlayerID(forUserID: user.userID.value, eventID: cache.cacheEventID.value) else {
+            errorMessage = "Could not resolve player - try joining the event first"
+            return false
+        }
+        
+        let find = Find(
+            findID: FlexibleID("0"),
+            findPlayerID: <#T##FlexibleID#>(pid),
+            findCacheID: cache.cacheID,
+            findDatetime: ISO8601DateFormatter().string(from: Date()),
+            findImageURL: imageURL ?? "https://placehold.co/300x300/png",
+            findPlayer: nil,
+            findCache: nil
+            )
+        do {
+            let created = try await api.createFind(find)
+            if let idx = caches.firstIndex(where: { $0.cache.cacheID.value == cache.cacheID.value}) {
+                caches[idx].isFound = true
+                caches[idx].find = created
+            }
+            return true
+        } catch {
+            errorMessage = error.localizedDescription
+            return false
+        }
+    }
 }
 
