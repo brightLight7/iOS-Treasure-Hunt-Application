@@ -71,5 +71,11 @@ final class MapController: ObservableObject {
         }
         isLoading = false
     }
+    
+    // MARK: - Proximity check
+    
+    func canUnlock(cache: Cache) -> Bool {
+        locationService?.isNearby(cache: cache) ?? false
+    }
 }
 
