@@ -5,6 +5,10 @@
 //  Created by Reda Ejhani on 06/04/2026.
 //
 
+import Foundation
+import Combine
+import CoreMotion
+
 // MARK: - PedometerService
 
 final class PedometerService: ObservableObject {
