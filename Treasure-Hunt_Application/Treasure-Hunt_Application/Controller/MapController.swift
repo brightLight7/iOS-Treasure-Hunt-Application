@@ -51,5 +51,25 @@ final class MapController: ObservableObject {
         }
         isLoading = false
     }
+    
+    // MARK: - Load event caches
+    
+    func loadCaches(forEventid eventID: String) async {
+        isLoading = true
+        errorMessage = nil
+        do {
+            let eventCaches = try await api.getCaches(forEventID: eventID)
+            let allFinds = try await fetchCurrentPlayerFinds()
+            let foundCacheIDs = Set(allFinds.map { $0.findCacheID.value })
+            
+            caches = eventCaches.map { cache in
+                let find = allFinds.first { $0.findCacheID.value == cache.cacheID.value }
+                return CacheWithStatus(cache: cache, isFound: foundCacheIDs.contains(cache.cacheID.value), find: find)
+            }
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+        isLoading = false
+    }
 }
 
