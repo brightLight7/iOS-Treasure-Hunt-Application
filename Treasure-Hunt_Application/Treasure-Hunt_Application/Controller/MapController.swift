@@ -112,5 +112,15 @@ final class MapController: ObservableObject {
             return false
         }
     }
+    
+    // MARK: - Centre map on user
+    
+    func centreOnUser() {
+        guard let loc = locationService?.userLocation else { return }
+        mapRegion = MKCoordinateRegion(
+            center: loc.coordinate,
+            span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.005)
+        )
+    }
 }
 
