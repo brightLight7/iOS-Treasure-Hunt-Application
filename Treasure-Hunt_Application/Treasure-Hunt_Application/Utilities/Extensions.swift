@@ -37,3 +37,11 @@ extension Double {
     }
 }
 
+// MARK: - Data helpers
+
+extension Data {
+    var iso8601String: String {
+        ISO8601DateFormatter().string(from: self)
+    }
+}
+
