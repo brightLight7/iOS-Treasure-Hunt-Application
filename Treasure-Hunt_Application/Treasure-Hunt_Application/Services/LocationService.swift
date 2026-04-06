@@ -47,11 +47,35 @@ final class LocationService: NSObject, ObservableObject {
         guard let userLocation else { return nil }
         let cacheLocation = CLLocation(latitude: cache.cacheLatitude, longitude: cache.cacheLongitude)
         return userLocation.distance(from: cacheLocation)
+    }
         
         func isNearby(cache: Cache) -> Bool {
             guard let dist = distance(to: cache) else { return false }
             return dist <= Self.proximityThreshold
         }
-    }
 }
-
+    
+    // MARK: - CLLocationManagerDelegate
+    
+    extension LocationService: CLLocationManagerDelegate {
+        
+        func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+            authorizationStatus = manager.authorizationStatus
+            if manager.authorizationStatus == .authorizedWhenInUse ||
+                manager.authorizationStatus == .authorizedAlways {
+                startUpdating()
+            }
+        }
+        
+        func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+            userLocation = location.last
+        }
+        
+        func locationManager(_ manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
+            heading = newHeading
+        }
+        
+        func locationManager (_ manager: CLLocationManager, didFailWithError error: Error) {
+            print("LocationService error: \(error.localizedDescription)")
+        }
+}
