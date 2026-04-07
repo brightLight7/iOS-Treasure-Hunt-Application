@@ -122,5 +122,44 @@ final class MapController: ObservableObject {
             span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.005)
         )
     }
+    
+    // MARK: - Private helpers
+    
+    private func fetchCurrentPlayerFinds() async throws -> [Find] {
+        guard let user = session.currentUser else { return [] }
+        let players = try await api.getPlayers()
+        let myPlayerIDs = players.filter { $0.playerUserID.value == user.userID.value }.map { $0.playerID.value }
+        var finds: [Find] = []
+        for pid in myPlayerIDs {
+            let pFinds = try await api.getFinds(forPlayerID: pid)
+                                            finds.append(contentsOf: pFinds)
+        }
+        return finds
+    }
+    
+    private func resolvePlayerID(forUserID userID: String, eventID: String) async -> String? {
+        if let pid = playerID { return pid }
+        do {
+            let players = try await api.getPlayers(forEventID: eventID)
+            if let p = players.first(where: { $0.playerUserID.value == userID }) {
+                self.playerID = p.playerID.value
+                return p.playerID.value
+            }
+                                                   
+            let newPlauer = Player(
+                playerID: FlexibleID("0"),
+                playerUserID: <#T##FlexibleID#>(userID),
+                playerEventID: <#T##FlexibleID#>(eventID),
+                playerUser: nil,
+                playerEvent: nil
+            )
+            
+            let created = try await api.createPlayer(newPlayer)
+            self.playerID = created.playerID.value
+            return created.playerID.value
+        } catch {
+            return nil
+        }
+    }
 }
 
