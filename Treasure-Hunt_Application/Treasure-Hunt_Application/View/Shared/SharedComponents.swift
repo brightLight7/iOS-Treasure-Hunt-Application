@@ -110,3 +110,16 @@ struct CompassArrow: View {
     }
 }
 
+// MARK: - SectionHeader
+
+struct sectionHeader: View {
+    let title: String
+    
+    var body: some View {
+        Text(title)
+            .font(.footnote.bold())
+            .foregroundStyle(.secondary)
+            .textCase(.uppercase)
+    }
+}
+
