@@ -26,7 +26,7 @@ struct MapView: View {
                         CacheAnnotationView(
                             cacheWithStatus: item,
                             isNearby: mapController.canUnlock(cache: item.cache)
-                            )
+                        )
                         .onTapGesture { selectedCache = item }
                     }
                 }
@@ -44,7 +44,7 @@ struct MapView: View {
                             position = .camera(MapCamera(
                                 centerCoordinate: loc.coordinate
                                 distance: 1000
-                                ))
+                            ))
                         }
                     } label: {
                         Image(systemName: "location.fill")
@@ -71,20 +71,52 @@ struct MapView: View {
                 CacheDetailView(cacheWithStatus: item)
                     .environmentObject(mapController)
                     .environmentObject(locationService)
-        }
-        .task {
+            }
+            .task {
                 mapController.setup(locationService: locationService)
                 locationService.requestPermission()
                 await mapController.loadGlobalCaches()
-        }
-        .overlay {
-            if mapController.isLoading {
-                ProgressView("Loading caches...")
-                    .padding()
-                    .background(.ultraThinMaterial)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
             }
+            .overlay {
+                if mapController.isLoading {
+                    ProgressView("Loading caches...")
+                        .padding()
+                        .background(.ultraThinMaterial)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+            }
+    }
+}
+    
+// MARK: - Cache pin annotation view
+    
+struct CacheAnnotationView: View {
+    let cacheWithStatus: CacheWithStatus
+    let isNearby: Bool
+    
+    var body: some View {
+        ZStack {
+            Circle()
+                .fill(annotationColor)
+                .frame(width: 36, height: 36)
+                .shadow(radius: 3)
+            
+            Image(systemName: iconName)
+                .foregroundStyle(.white)
+                .font(.system(size: 16m weight: .bold))
         }
+        .scaleEffect(isNearby ? 1.2 : 1.0)
+        .animation(.spring(response: 0.3), value: isNearby)
+    }
+    
+    private var annotationColor: Color {
+        if cacheWithStatus.isFound { return .gray }
+        if isNearby { return .orange }
+        return .green
+    }
+    
+    private var iconName: String {
+        cacheWithStatus.isFound ? "checkmark" : "mappin"
     }
 }
 
