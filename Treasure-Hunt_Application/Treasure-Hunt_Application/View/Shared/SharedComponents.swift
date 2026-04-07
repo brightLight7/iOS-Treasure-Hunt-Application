@@ -96,3 +96,17 @@ struct PointsBadge: View {
     }
 }
 
+// MARK: - CompassArrow
+
+struct CompassArrow: View {
+    let bearingDegrees: Double
+    
+    var body: some View {
+        Image(systemName: "arrow.up")
+            .font(.system(size: 32, weight: .bold))
+            .foregroundStyle(.green)
+            .rotationEffect(.degree(bearingDegrees))
+            .animation(.easeInOut(duration: 0.3), value: bearingDegrees)
+    }
+}
+
