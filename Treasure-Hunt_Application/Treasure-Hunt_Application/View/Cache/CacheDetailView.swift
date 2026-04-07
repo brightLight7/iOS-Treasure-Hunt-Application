@@ -205,3 +205,27 @@ struct CacheDetailView: View {
     }
 }
 
+// MARK: - Status badge
+
+struct StatusBadge: View {
+    let isFound: Bool
+    let isNearby: Bool
+    
+    var body: some View {
+        Text(label)
+            .font(.caption.bold())
+            .padding(.horizontal, 10)
+            .padding(.vertical, 5)
+            .background(color.opacity(0.15))
+            .clipShape(Capsule())
+    }
+    
+    private var label: String {
+        isFound ? "Found" : (isNearby ? "Nearby!" : "Hidden")
+    }
+    
+    private var color: Color {
+        isFound ? .gray : (isNearby ? .orange : .green)
+    }
+}
+
