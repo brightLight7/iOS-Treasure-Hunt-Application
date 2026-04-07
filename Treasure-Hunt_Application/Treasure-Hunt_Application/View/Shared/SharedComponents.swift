@@ -63,3 +63,23 @@ struct LoadingButton: View {
     }
 }
 
+// MARK: - ErrorBanner
+
+struct ErrorBanner: View {
+    
+    let message: String
+    
+    var body: some View {
+        HStack {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .foregroundStyle(.red)
+            Text(message)
+                .font(.footnote)
+                .foregroundStyle(.red)
+        }
+        .padding(10)
+        .background(Color.red.opacity(0.1))
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
+}
+
