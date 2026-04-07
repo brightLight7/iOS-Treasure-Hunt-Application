@@ -10,7 +10,6 @@ import SwiftUI
 // MARK: - GQTextField
 
 struct GQTextField: View {
-    
     let title: String
     @Binding var text: String
     let icon: String
@@ -39,7 +38,6 @@ struct GQTextField: View {
 // MARK: - LoadingButton
 
 struct LoadingButton: View {
-    
     let title: String
     let isLoading: Bool
     let action: () -> Void
@@ -66,7 +64,6 @@ struct LoadingButton: View {
 // MARK: - ErrorBanner
 
 struct ErrorBanner: View {
-    
     let message: String
     
     var body: some View {
@@ -80,6 +77,22 @@ struct ErrorBanner: View {
         .padding(10)
         .background(Color.red.opacity(0.1))
         .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
+}
+
+// MARK: - PointsBadge
+
+struct PointsBadge: View {
+    let points: Double
+    
+    var body: some View {
+        Text("\(Int(points)) pts")
+            .font(.caption.bold())
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(Color.green.opacity(0.15))
+            .foregroundStyle(.green)
+            .clipShape(Capsule())
     }
 }
 
