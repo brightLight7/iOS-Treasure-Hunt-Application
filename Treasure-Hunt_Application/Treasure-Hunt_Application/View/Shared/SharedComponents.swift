@@ -36,3 +36,30 @@ struct GQTextField: View {
     }
 }
 
+// MARK: - LoadingButton
+
+struct LoadingButton: View {
+    
+    let title: String
+    let isLoading: Bool
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            Group {
+                if isLoading {
+                    ProgressView().tint(.white)
+                } else {
+                    Text(title).fontWeight(.semibold)
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .padding())
+            .background(.green)
+            .foregroundStyle(.white)
+            .clipShape(RoundedRectangle(cornerRadius: 14))
+        }
+        .disabled(isLoading)
+    }
+}
+
