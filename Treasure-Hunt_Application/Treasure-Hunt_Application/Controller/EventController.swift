@@ -93,7 +93,54 @@ final class EventController: ObservableObject {
         }
     }
             
-        
+    // MARK: Join Event
+    
+    func joinEvent(_ event: Event) async -> Bool {
+        guard let user = session.currentUser else { return false }
+        do {
+            let players = try await api.getPlayers(forEventID: event.eventID.value)
+            if players.contains(where: { $0.playerUserID.value == user.userID.value }) {
+                return true
+            }
+            let newPlayer = Player(
+                playerID: FlexibleID("0"),
+                playerUserID: user.userID,
+                playerEventID: event.eventID,
+                playerUser: nil,
+                playerEvent: nil
+            )
+            _ = try await api.createPlayer(newPlayer)
+            return true
+        } catch {
+            errorMessage = error.localizedDescription
+            return false
+        }
+    }
+    
+    // MARK: Delete event
+    
+    func deleteEvent(_ event: Event) async {
+        do {
+            try await api.deleteEvent(id: event.eventID.value)
+            events.removeAll { $0.eventID.value == event.eventID.value }
+            myEvents.removeAll { $0.eventID.value == event.eventID.value }
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+  
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     
     
