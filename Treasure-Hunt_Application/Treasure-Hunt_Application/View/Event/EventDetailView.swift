@@ -60,6 +60,26 @@ struct EventDetailView: View {
     }
     
     
+    // MARK: Leaderboard Tab
+    
+    private var leaderboardTab: some View {
+        List {
+            if leaderboard.isEmpty {
+                Text("No scores yet")
+                    .foregroundStyle(.secondary)
+            } else {
+                ForEach(Array(leaderboard.enumerated()), id: \.element.id) { idx, entry in LeaderboardRowView(entry: entry, rank: idx + 1)
+                }
+            }
+        }
+        .listStyle(.plain)
+        .refreshable {
+            leaderboard = await eventController.leaderboard(forEventID: event.eventID.value)
+        }
+    }
+    
+    
+    
     
     
 }
