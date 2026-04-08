@@ -45,7 +45,55 @@ final class EventController: ObservableObject {
         isLoading = false
     }
     
+    // MARK: Create event
     
+    func createEvent(name: String, description: String, start: Date,finish: Date, isPublic: Bool) async -> Event? {
+        guard let user = session.currentUser else { return nil }
+        
+        // Load statuses if not yet available; fall back to ID "130" (the live API default)
+        if statuses.isEmpty {
+            if let loaded = try? await api.getStatuses(), !loaded.isEmpty {
+                statuses = loaded
+            }
+        }
+        let statusID = statuses.first?.statusID ?? FlexibleID("130")
+        
+        let fmt = ISO8601DateFormatter()
+        let event = Event(
+            eventID: FlexibleID("0"),
+            eventName: name,
+            eventDescription: description,
+            eventOwnerID: user.userID,
+            eventIsPublic: isPublic,
+            eventStart: fmt.string(from: start),
+            eventFinish: fmt.string(from: finish),
+            eventStatusID: statusID,
+            eventOwner: nil,
+            eventStatus: nil
+        )
+        do {
+            let created = try await api.createEvent(event)
+            events.append(created)
+            myEvents.append(created)
+            
+            // Makes the owner as player 1
+            let player = Player(
+                playerID: FlexibleID("0"),
+                playerUserID: user.userID,
+                playerEventID: created.eventID,
+                playerUser: nil,
+                playerEvent: nil
+            )
+            _ = try? await api.createPlayer(player)
+            
+            return created
+        } catch {
+            errorMessage = error.localizedDescription
+            return nil
+        }
+    }
+            
+        
     
     
     
