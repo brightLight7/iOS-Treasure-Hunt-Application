@@ -60,6 +60,45 @@ struct EventDetailView: View {
         .task { await loadData() }
     }
     
+    // MARK: Cache Tab
+    
+    private var cachesTab: some View {
+        List {
+            if !isOwner {
+                Section {
+                    Button {
+                        Task {
+                            isJoining = true
+                            hasJoined = await eventController.joinEvent(event)
+                            isJoining = false
+                        }
+                    } label: {
+                        HStack {
+                            if isJoining { ProgressView() }
+                            Text(hasJoined ? "Joined ✓" : "Join Event") .fontWeight(.semibold)
+                        }
+                        .frame(maxWidth: .infinity).frame(maxWidth: .infinity)
+                        .padding(.vertical, 6)
+                    }
+                    .disabled(hasJoined)
+                    .foregroundStyle(hasJoined ? .secondary : Color.green)
+                }
+            }
+            
+            Section("Caches (\(caches.count))") {
+                if caches.isEmpty {
+                    Text("No caches added yet")
+                        .foregroundStyle(.secondary)
+                        .font(.subheadline)
+                } else {
+                    ForEach(caches) { cache in CacheRowView(cache: cache)
+                    }
+                }
+            }
+        }
+        .listStyle(.insetGrouped)
+        .refreshable { await loadData() }
+    }
     
     // MARK: Leaderboard Tab
     
@@ -105,5 +144,4 @@ struct CacheRowView: View {
         .padding(.vertical, 2)
     }
 }
-
 
