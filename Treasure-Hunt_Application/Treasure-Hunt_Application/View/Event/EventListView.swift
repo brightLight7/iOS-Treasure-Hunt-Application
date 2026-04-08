@@ -80,3 +80,44 @@ struct EventListView: View {
         }
     }
 }
+
+// MARK: Event Row
+
+struct EventRowView: View {
+    let event: Event
+    let statusName: String
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text(event.eventName)
+                    .font(.headline)
+                Spacer()
+                Text(statusName)
+                    .font(.caption.bold())
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3)
+                    .background(Color.green.opacity(0.15))
+                    .foregroundStyle(.green)
+                    .clipShape(Capsule())
+            }
+            Text(event.eventDescription)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .lineLimit(2)
+            if let start = event.startDate {
+                Label(start.formatted(date: .abbreviated, time: .shortened), systemImage: "calendar")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+            }
+            HStack {
+                Image(systemName: event.eventIsPublic ? "globe" : "lock")
+                    .font(.caption)
+                Text(event.eventIsPublic ? "Public" : "Private")
+                    .font(.caption)
+            }
+            .foregroundStyle(.secondary)
+        }
+        .padding(.vertical, 4)
+    }
+}
