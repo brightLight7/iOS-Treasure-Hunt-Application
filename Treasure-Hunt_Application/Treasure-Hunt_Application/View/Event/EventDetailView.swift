@@ -145,3 +145,41 @@ struct CacheRowView: View {
     }
 }
 
+// MARK: Leaderboard row
+
+struct LeaderboardRowView: View {
+    let entry: LeaderboardEntry
+    let rank: Int
+    
+    var body: some View {
+        HStack(spacing: 14) {
+            Text("\(rank)")
+                .font(.title3.bold())
+                .foregroundStyle(rankColor)
+                .frame(width: 32)
+            
+            VStack(alignment: .leading) {
+                Text(entry.player.playerUser?.fullName ?? "Player")
+                    .font(.headline)
+                Text("\(entry.findCount) finds")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            Spacer()
+            
+            Text("\(Int(entry.totalPoints)) pts")
+                .font(.headline)
+                .foregroundStyle(Color.green)
+        }
+        .padding(.vertical, 4)
+    }
+    
+    private var rankColor: Color {
+        switch rank {
+        case 1: return .yellow
+        case 2: return Color(.systemGray)
+        case 3: return .orange
+        default: return .secondary
+        }
+    }
+}
