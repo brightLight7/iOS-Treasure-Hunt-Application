@@ -92,7 +92,7 @@ final class EventController: ObservableObject {
             return nil
         }
     }
-            
+    
     // MARK: Join Event
     
     func joinEvent(_ event: Event) async -> Bool {
@@ -128,8 +128,34 @@ final class EventController: ObservableObject {
             errorMessage = error.localizedDescription
         }
     }
-  
     
+    // MARK: Leaderboard for event
+    
+    func leaderboard(forEventID eventID: String) async -> [LeaderboardEntry] {
+        do {
+            async let players = api.getPlayers(forEventID: eventID)
+            async let finds = api.getFinds(forEventID: eventID)
+            async let caches = api.getCaches(forEventID: eventID)
+            let (ps, fs, cs) = try await (players, finds, caches)
+            
+            let cachePointsMap = Dictionary(uniqueKeysWithValues: cs.map { ($0.cacheID.value, $0.cachePoints) })
+            
+            return ps.map { player in
+                let playerFinds = fs.filter { $0.findPlayerID.value == player.playerID.value }
+                let points = playerFinds.reduce(0.0) { $0 + (cachePointsMap[$1.findCacheID.value] ?? 0)}
+                return LeaderboardEntry(player: player, totalPoints: points, findCount: playerFinds.count)
+            }.sorted { $0.totalPoints > $1.totalPoints }
+        } catch {
+            return []
+        }
+    }
+    
+    // MARK: Status Helper
+    
+    func statusName(forID id: FlexibleID) -> String {
+        statuses.first { $0.statusID?.value == id.value }?.statusName ?? "Active"
+    }
+}
     
     
     
