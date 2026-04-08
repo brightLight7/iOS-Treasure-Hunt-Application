@@ -156,18 +156,4 @@ final class EventController: ObservableObject {
         statuses.first { $0.statusID?.value == id.value }?.statusName ?? "Active"
     }
 }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-}
+

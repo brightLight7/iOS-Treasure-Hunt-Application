@@ -20,6 +20,7 @@ struct EventDetailView: View {
     @State private var selectedTab = 0
     @State private var isLoading = false
     
+    // MARK: Cache tab
     private var isOwner: Bool {
         event.eventOwnerID.value == SessionManager.shared.currentUser?.userID.value
     }
@@ -79,7 +80,30 @@ struct EventDetailView: View {
     }
     
     
+    // MARK: Data Loading
     
-    
-    
+    private func loadData() async {
+        isLoading = true
+        async let cacheLoad = ApiManager.shared.getCaches(forEventID: event.eventID.value)
+        async let lbLoad = eventController.leaderboard(forEventID: event.eventID.value)
+        if let loaded = try? await cacheLoad { caches = loaded }
+        leaderboard = await lbLoad
+        isLoading = false
+    }
 }
+    
+// MARK: Cache row
+
+struct CacheRowView: View {
+    let cache: Cache
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(cache.cacheName).font(.headline)
+            Text(cache.cacheDescription).font(.subheadline).foregroundStyle(.secondary).lineLimit(1)
+            Text("\(Int(cache.cachePoints)) pts").font(.caption).foregroundStyle(Color.green)
+        }
+        .padding(.vertical, 2)
+    }
+}
+
+
