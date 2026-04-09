@@ -37,9 +37,9 @@ extension Double {
     }
 }
 
-// MARK: - Data helpers
+// MARK: - Date helpers
 
-extension Data {
+extension Date {
     var iso8601String: String {
         ISO8601DateFormatter().string(from: self)
     }

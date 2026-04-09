@@ -18,7 +18,7 @@ struct GeoQuestApp: App
         WindowGroup {
             RootView()
                 .environmentObject(authController)
-                .environmentObject(LocationService)
+                .environmentObject(locationService)
                 .environmentObject(pedometerService)
         }
     }

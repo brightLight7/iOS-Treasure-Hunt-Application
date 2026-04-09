@@ -13,12 +13,12 @@ import CoreMotion
 
 final class PedometerService: ObservableObject {
     
-    @Published var stepCount Int = 0
+    @Published var stepCount: Int = 0
     @Published var distance: Double = 0
     @Published var isTracking = false
     @Published var isAvailable = CMPedometer.isStepCountingAvailable()
     
-    private let pedometer: CMPedometer()
+    private let pedometer = CMPedometer()
     private var sessionStart: Date?
     
     func startSession() {

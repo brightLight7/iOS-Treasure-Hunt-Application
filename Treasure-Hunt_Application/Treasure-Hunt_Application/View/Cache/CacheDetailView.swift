@@ -59,7 +59,7 @@ struct CacheDetailView: View {
                         let bearing = cache.bearing(from: userLoc)
                         let headingOffset = locationService.heading?.trueHeading ?? 0
                         HStack {
-                            CompassArrow(bearingDegress: bearing - headingOffset)
+                            CompassArrow(bearingDegrees: bearing - headingOffset)
                             Text("Head this way")
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
@@ -182,7 +182,7 @@ struct CacheDetailView: View {
             .navigationTitle("Cache Details")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolBarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") { dismiss() }
                 }
             }
@@ -199,7 +199,7 @@ struct CacheDetailView: View {
         let success = await mapController.logFind(for: cache, imageURL: imageURL)
         
         isLogging = false
-        if sucess {
+        if success {
             didLog = true
         }
     }
