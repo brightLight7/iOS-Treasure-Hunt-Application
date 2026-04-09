@@ -16,7 +16,7 @@ struct RootView: View
         {
             if authController.isLoggedIn
             {
-                // correct file goes here...
+                MainTabView()
             }
             else
             {

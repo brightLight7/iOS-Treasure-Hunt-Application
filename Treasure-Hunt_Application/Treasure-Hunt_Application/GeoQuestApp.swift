@@ -11,13 +11,15 @@ import SwiftUI
 struct GeoQuestApp: App
 {
     @StateObject private var authController = AuthController()
-    //additional variables will be needed here...
+    @StateObject private var locationService = LocationService()
+    @StateObject private var pedometerService = PedometerService()
 
     var body: some Scene {
         WindowGroup {
             RootView()
                 .environmentObject(authController)
-            /// additional environmentalObjects need to be here...
+                .environmentObject(LocationService)
+                .environmentObject(pedometerService)
         }
     }
 }
