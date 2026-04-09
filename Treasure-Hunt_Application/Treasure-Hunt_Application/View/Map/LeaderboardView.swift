@@ -95,4 +95,60 @@ struct LeaderboardView: View {
         isLoading = false
     }
 }
-                                
+
+// MARK: Podium UI
+
+struct PodiumView: View {
+    let entries: [LeaderboardEntry]
+    
+    var body: some View {
+        HStack(alignment: .bottom, spacing: 8) {
+            if entries.count > 1 {
+                PodiumBlock(entry: entries[1], rank: 2, height: 80)
+            }
+            PodiumBlock(entry: entries[0], rank: 1, height: 110)
+            if entries.count > 2 {
+                PodiumBlock(entry: entries[2], rank: 3, height: 60)
+            }
+        }
+        .padding()
+        .frame(maxWidth: .infinity)
+    }
+}
+
+struct PodiumBlock: View {
+    let entry: LeaderboardEntry
+    let rank: Int
+    let height: CGFloat
+    
+    private var medalColor: Color {
+        switch rank {
+        case 1: return .yellow
+        case 2: return Color(.systemGray2)
+        default: return .orange
+        }
+    }
+    
+    var body: some View {
+        VStack(spacing: 4) {
+            Text(entry.player.playerUser?.fullName ?? "Player")
+                .font(.caption.bold())
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
+            
+            Text("\(Int(entry.totalPoints)) pts")
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+            
+            ZStack {
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(medalColor.opacity(0.2))
+                    .frame(height: height)
+                Text("\(rank)")
+                    .font(.title2.bold())
+                    .foregroundStyle(medalColor)
+            }
+        }
+        .frame(maxWidth: .infinity)
+    }
+}
