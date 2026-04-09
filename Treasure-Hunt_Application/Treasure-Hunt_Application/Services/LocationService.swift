@@ -49,33 +49,33 @@ final class LocationService: NSObject, ObservableObject {
         return userLocation.distance(from: cacheLocation)
     }
         
-        func isNearby(cache: Cache) -> Bool {
-            guard let dist = distance(to: cache) else { return false }
-            return dist <= Self.proximityThreshold
-        }
+    func isNearby(cache: Cache) -> Bool {
+        guard let dist = distance(to: cache) else { return false }
+        return dist <= Self.proximityThreshold
+    }
 }
     
-    // MARK: - CLLocationManagerDelegate
+// MARK: - CLLocationManagerDelegate
+
+extension LocationService: CLLocationManagerDelegate {
     
-    extension LocationService: CLLocationManagerDelegate {
-        
-        func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-            authorizationStatus = manager.authorizationStatus
-            if manager.authorizationStatus == .authorizedWhenInUse ||
-                manager.authorizationStatus == .authorizedAlways {
-                startUpdating()
-            }
+    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        authorizationStatus = manager.authorizationStatus
+        if manager.authorizationStatus == .authorizedWhenInUse ||
+            manager.authorizationStatus == .authorizedAlways {
+            startUpdating()
         }
-        
-        func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-            userLocation = locations.last
-        }
-        
-        func locationManager(_ manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
-            heading = newHeading
-        }
-        
-        func locationManager (_ manager: CLLocationManager, didFailWithError error: Error) {
-            print("LocationService error: \(error.localizedDescription)")
-        }
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        userLocation = locations.last
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
+        heading = newHeading
+    }
+    
+    func locationManager (_ manager: CLLocationManager, didFailWithError error: Error) {
+        print("LocationService error: \(error.localizedDescription)")
+    }
 }
