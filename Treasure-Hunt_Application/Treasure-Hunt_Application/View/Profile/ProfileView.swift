@@ -14,7 +14,7 @@ struct ProfileView: View {
     @State private var isLoading = false
     @State private var showEditProfile = false
     
-    private var user: User? { authController.currentUser }\
+    private var user: User? { authController.currentUser }
     
     var body: some View {
         NavigationStack {
