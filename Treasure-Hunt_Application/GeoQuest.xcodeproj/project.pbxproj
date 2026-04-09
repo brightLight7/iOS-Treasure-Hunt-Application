@@ -254,6 +254,10 @@
 				DEVELOPMENT_TEAM = 36FD8FM487;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "GeoQuest uses the camera to photograph caches when you log a find.";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "GeoQuest uses your location to show nearby caches and detect when you're close enough to find them.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "GeoQuest uses your location to show nearby caches and detect when you're close enough to find them.";
+				INFOPLIST_KEY_NSMotionUsageDescription = "GeoQuest uses motion data to track your activity during hunts.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -287,6 +291,10 @@
 				DEVELOPMENT_TEAM = 36FD8FM487;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "GeoQuest uses the camera to photograph caches when you log a find.";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "GeoQuest uses your location to show nearby caches and detect when you're close enough to find them.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "GeoQuest uses your location to show nearby caches and detect when you're close enough to find them.";
+				INFOPLIST_KEY_NSMotionUsageDescription = "GeoQuest uses motion data to track your activity during hunts.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
