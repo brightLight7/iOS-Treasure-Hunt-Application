@@ -123,4 +123,24 @@ struct ProfileView: View {
     }
 }
 
+// MARK: Stat row
 
+struct StatRow: View {
+    let icon: String
+    let color: Color
+    let label: String
+    let value: String
+    
+    var body: some View {
+        HStack {
+            Image(systemName: icon)
+                .foregroundStyle(color)
+                .frame(width: 28)
+            Text(label)
+            Spacer()
+            Text(value)
+                .fontWeight(.semibold)
+                .foregroundStyle(.secondary)
+        }
+    }
+}
