@@ -254,6 +254,7 @@
 				DEVELOPMENT_TEAM = 36FD8FM487;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = GeoQuest;
 				INFOPLIST_KEY_NSCameraUsageDescription = "GeoQuest uses the camera to photograph caches when you log a find.";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "GeoQuest uses your location to show nearby caches and detect when you're close enough to find them.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "GeoQuest uses your location to show nearby caches and detect when you're close enough to find them.";
@@ -291,6 +292,7 @@
 				DEVELOPMENT_TEAM = 36FD8FM487;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = GeoQuest;
 				INFOPLIST_KEY_NSCameraUsageDescription = "GeoQuest uses the camera to photograph caches when you log a find.";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "GeoQuest uses your location to show nearby caches and detect when you're close enough to find them.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "GeoQuest uses your location to show nearby caches and detect when you're close enough to find them.";
