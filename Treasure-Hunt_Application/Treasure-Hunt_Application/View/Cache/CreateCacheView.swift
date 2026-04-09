@@ -18,6 +18,7 @@ struct CreateCacheView: View {
     @State private var description = ""
     @State private var clue = ""
     @State private var points = 10.0
+    @State private var proximityRadius = 30.0
     @State private var latitude = ""
     @State private var longitude = ""
     @State private var isLoading = false
@@ -38,6 +39,16 @@ struct CreateCacheView: View {
                 
                 Section("Points Value") {
                     Stepper("\(Int(points)) points", value: $points, in: 1...100, step: 5)
+                }
+                
+                Section {
+                    Stepper("Unlock radius: \(Int(proximityRadius)) m",
+                            value: $proximityRadius, in: 5...200, step: 5)
+                    Text("Players must be within \(Int(proximityRadius)) metres to unlock this cache.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                } header: {
+                    Text("Proximity")
                 }
                 
                 Section("GPS Location") {
@@ -103,6 +114,7 @@ struct CreateCacheView: View {
             )
         do {
             let created = try await ApiManager.shared.createCache(cache)
+            UserDefaults.standard.set(proximityRadius, forKey: "proximity_\(created.cacheID.value)")
             onCreated?(created)
             dismiss()
         } catch {
