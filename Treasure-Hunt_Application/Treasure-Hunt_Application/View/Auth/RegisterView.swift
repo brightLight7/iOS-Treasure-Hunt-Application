@@ -33,7 +33,7 @@ struct RegisterView: View
                 VStack(spacing: 14)
                 {
                     GQTextField(title: "First Name", text: $firstname, icon: "person")
-                    GQTextField(title: "Last Name", text: lastname, icon: "person")
+                    GQTextField(title: "Last Name", text: $lastname, icon: "person")
                     GQTextField(title: "Username", text: $username, icon: "at")
                     
                     HStack(spacing: 8)
@@ -41,16 +41,23 @@ struct RegisterView: View
                         HStack(spacing: 4)
                         {
                             Image(systemName: "phone")
-                                .foregroundStyle(.primary)
-                            TextField("44". text: $countryCode)
+                                .foregroundStyle(.secondary)
+                            TextField("44", text: $countryCode)
                                 .keyboardType(.numberPad)
                                 .frame(width: 36)
                         }
                         .padding(14)
                         .background(Color(.secondarySystemBackground))
                         .clipShape(RoundedRectangle(cornerRadius: 12))
+                        
+                        TextField("Phone number", text: $phoneNumber)
+                            .keyboardType(.numberPad)
+                            .padding(14)
+                            .background(Color(.secondarySystemBackground))
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
                     GQTextField(title: "Password", text: $password, icon: "lock", isSecure: true)
+                    GQTextField(title: "Confirm Password", text: $confirmPassword, icon: "lock", isSecure: true)
                 }
                 if let err = authController.errorMessage
                 {
@@ -70,8 +77,9 @@ struct RegisterView: View
                     Task
                     {
                         await authController.register(firstname: firstname, lastname: lastname, username: username, phone: fullPhone, password: password)
+                        if authController.isLoggedIn { dismiss() }
                     }
-                    if authController.isLoggedIn { dismiss() }
+                    
                 }
             label:
                 {
@@ -97,6 +105,6 @@ struct RegisterView: View
             .padding()
         }
         .navigationTitle("Register")
-        .navigationBarTitleDisplayMode(.incline)
+        .navigationBarTitleDisplayMode(.inline)
     }
 }

@@ -35,7 +35,7 @@ final class LocationService: NSObject, ObservableObject {
     
     func startUpdating() {
         manager.startUpdatingLocation()
-        manager.stopUpdatingHeading()
+        manager.startUpdatingHeading()
     }
     
     func stopUpdating() {
@@ -68,7 +68,7 @@ final class LocationService: NSObject, ObservableObject {
         }
         
         func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-            userLocation = location.last
+            userLocation = locations.last
         }
         
         func locationManager(_ manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {

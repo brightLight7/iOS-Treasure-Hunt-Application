@@ -10,7 +10,7 @@ import MapKit
 import CoreLocation
 
 struct CreateCacheView: View {
-    @Environment(\dismiss) var dismiss
+    @Environment(\.dismiss) var dismiss
     let event: Event
     var onCreated: ((Cache) -> Void)?
     

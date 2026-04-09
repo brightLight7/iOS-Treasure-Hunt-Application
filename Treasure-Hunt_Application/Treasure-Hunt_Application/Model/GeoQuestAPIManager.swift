@@ -64,14 +64,14 @@ private struct WrappedArray<T: Decodable>: Decodable
 private struct WrappedSingle<T: Decodable>: Decodable
 {
     let value: T
-    init (from: decoder: Decoder) throws
+    init (from decoder: Decoder) throws
     {
         if let arr = try? [T](from: decoder), let first = arr.first
         {
             value = first
             return
         }
-        if let v = try? T(from decoder)
+        if let v = try? T(from: decoder)
         {
             value = v
             return
@@ -101,8 +101,8 @@ private struct DynamicKey: CodingKey
 
 final class ApiManager
 {
-    static let shared = APIManager()
-    private int() {}
+    static let shared = ApiManager()
+    private init() {}
     
     private let apiKey = "aqnev4"
     private let baseURL = "https://mark0s.com/geoquest/v1/api"
@@ -144,7 +144,7 @@ final class ApiManager
     }
     
     // MARK: - Generic decoders
-    private func getArray<T: Decodable>(_path: String) async throws -> [T]
+    private func getArray<T: Decodable>(_ path: String) async throws -> [T]
     {
         let url = try makeURL(path)
         var request = URLRequest(url: url)
@@ -177,7 +177,7 @@ final class ApiManager
         return try JSONDecoder().decode(WrappedArray<T>.self, from: data).values
     }
     
-    private func getSingle<T: Decodable>(_path: String) async throws -> T
+    private func getSingle<T: Decodable>(_ path: String) async throws -> T
     {
         let url = try makeURL(path)
         var request = URLRequest(url: url)
@@ -186,7 +186,7 @@ final class ApiManager
         return try JSONDecoder().decode(WrappedSingle<T>.self, from: data).value
     }
     
-    private func postSingle<T: Decodable, B: Encodable>(_path: String, body: B) async throws -> T
+    private func postSingle<T: Decodable, B: Encodable>(_ path: String, body: B) async throws -> T
     {
         let url = try makeURL(path)
         var request = URLRequest(url: url)
@@ -206,7 +206,7 @@ final class ApiManager
         return try JSONDecoder().decode(WrappedSingle<T>.self, from: data).value
     }
     
-    private func putSingle<T: Decodable, B: Encodable>(_path: String, body: B) async throws -> T
+    private func putSingle<T: Decodable, B: Encodable>(_ path: String, body: B) async throws -> T
     {
         let url = try makeURL(path)
         var request = URLRequest(url: url)
@@ -230,7 +230,7 @@ final class ApiManager
     {
         let url = try makeURL(path)
         var request = URLRequest(url: url)
-        request.httpBody = "DELETE"
+        request.httpMethod = "DELETE"
         let (_,response) = try await urlSession.data(for: request)
         guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else
         {
@@ -244,13 +244,13 @@ final class ApiManager
     {
         let url = try makeURL("/users", extraParams: ["UserUsername": username])
         var request = URLRequest(url: url)
-        request.httpBody = "GET"
+        request.httpMethod = "GET"
         let data = try await fetchData(request)
         if let str = String(data: data, encoding: .utf8)
         {
             print("GET /users?username response: \(str.prefix(200))")
         }
-        return (try? JSONDecoder().decode(WrappedSingle<T>.self, from: data).values) ?? []
+        return (try? JSONDecoder().decode(WrappedArray<User>.self, from: data).values) ?? []
     }
     
     func getUsers() async throws -> [User]
@@ -258,17 +258,17 @@ final class ApiManager
         try await getArray("/users")
     }
     
-    func getUsers(id: String) async throws -> [User]
+    func getUser(id: String) async throws -> User
     {
         try await getSingle("/users/\(id)")
     }
     
-    func createUser(_ user: User) async throws -> [User]
+    func createUser(_ user: User) async throws -> User
     {
         try await postSingle("/users", body: user)
     }
     
-    func updateUser(_ user: User) async throws -> [User]
+    func updateUser(_ user: User) async throws -> User
     {
         try await putSingle("/users/\(user.userID.value)", body: user)
     }
@@ -289,7 +289,7 @@ final class ApiManager
         try await getArray("/events")
     }
     
-    func getEvent(id: String) async throws -> [Event]
+    func getEvent(id: String) async throws -> Event
     {
         try await getSingle("/events/\(id)")
     }
@@ -299,12 +299,12 @@ final class ApiManager
         try await getArray("/events/users/\(userID)")
     }
     
-    func createEvent(_ event: Event) async throws -> [Event]
+    func createEvent(_ event: Event) async throws -> Event
     {
         try await postSingle("/events", body: event)
     }
     
-    func updateEvent(_ event: Event) async throws -> [Event]
+    func updateEvent(_ event: Event) async throws -> Event
     {
         try await putSingle("/events/\(event.eventID)", body: event)
     }
@@ -327,7 +327,7 @@ final class ApiManager
         try await getArray("/players")
     }
     
-    func getPlayer(id: String) async throws -> [Player]
+    func getPlayer(id: String) async throws -> Player
     {
         try await getSingle("/players/\(id)")
     }
@@ -337,7 +337,7 @@ final class ApiManager
         try await getArray("/players/events/\(eventID)")
     }
     
-    func createPlayer(_ player: Player) async throws -> [Player]
+    func createPlayer(_ player: Player) async throws -> Player
     {
         try await postSingle("/players", body: player)
     }
@@ -353,7 +353,7 @@ final class ApiManager
         try await getArray("/caches")
     }
     
-    func getCache(id: String) async throws -> [Cache]
+    func getCache(id: String) async throws -> Cache
     {
         try await getSingle("/caches/\(id)")
     }
@@ -363,12 +363,12 @@ final class ApiManager
         try await getArray("/caches/events/\(eventID)")
     }
     
-    func createCache(_ cache: Cache) async throws -> [Cache]
+    func createCache(_ cache: Cache) async throws -> Cache
     {
         try await postSingle("/caches", body: cache)
     }
     
-    func updateCache(_ cache: Cache) async throws -> [Cache]
+    func updateCache(_ cache: Cache) async throws -> Cache
     {
         try await putSingle("/caches/\(cache.cacheID)", body: cache)
     }
@@ -384,7 +384,7 @@ final class ApiManager
         try await getArray("/finds")
     }
     
-    func getFind(id: String) async throws -> [Find]
+    func getFind(id: String) async throws -> Find
     {
         try await getSingle("/finds/\(id)")
     }
@@ -399,7 +399,7 @@ final class ApiManager
         try await getArray("/finds/players/\(playerID)")
     }
     
-    func createFind(_ find: Find) async throws -> [Find]
+    func createFind(_ find: Find) async throws -> Find
     {
         try await postSingle("/finds", body: find)
     }

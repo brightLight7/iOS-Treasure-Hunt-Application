@@ -52,7 +52,7 @@ struct LoadingButton: View {
                 }
             }
             .frame(maxWidth: .infinity)
-            .padding())
+            .padding()
             .background(.green)
             .foregroundStyle(.white)
             .clipShape(RoundedRectangle(cornerRadius: 14))
@@ -105,14 +105,14 @@ struct CompassArrow: View {
         Image(systemName: "arrow.up")
             .font(.system(size: 32, weight: .bold))
             .foregroundStyle(.green)
-            .rotationEffect(.degree(bearingDegrees))
+            .rotationEffect(.degrees(bearingDegrees))
             .animation(.easeInOut(duration: 0.3), value: bearingDegrees)
     }
 }
 
 // MARK: - SectionHeader
 
-struct sectionHeader: View {
+struct SectionHeader: View {
     let title: String
     
     var body: some View {

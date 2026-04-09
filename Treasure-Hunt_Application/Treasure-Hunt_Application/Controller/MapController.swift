@@ -25,7 +25,7 @@ final class MapController: ObservableObject {
     
     private let api = ApiManager.shared
     private let session = SessionManager.shared
-    private let locationService: LocationService?
+    private var locationService: LocationService?
     private var playerID: String?
     
     func setup(locationService: LocationService) {
@@ -54,7 +54,7 @@ final class MapController: ObservableObject {
     
     // MARK: - Load event caches
     
-    func loadCaches(forEventid eventID: String) async {
+    func loadCaches(forEventID eventID: String) async {
         isLoading = true
         errorMessage = nil
         do {
@@ -93,7 +93,7 @@ final class MapController: ObservableObject {
         
         let find = Find(
             findID: FlexibleID("0"),
-            findPlayerID: <#T##FlexibleID#>(pid),
+            findPlayerID: FlexibleID(pid),
             findCacheID: cache.cacheID,
             findDatetime: ISO8601DateFormatter().string(from: Date()),
             findImageURL: imageURL ?? "https://placehold.co/300x300/png",
@@ -119,7 +119,7 @@ final class MapController: ObservableObject {
         guard let loc = locationService?.userLocation else { return }
         mapRegion = MKCoordinateRegion(
             center: loc.coordinate,
-            span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.005)
+            span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
         )
     }
     
@@ -146,10 +146,10 @@ final class MapController: ObservableObject {
                 return p.playerID.value
             }
                                                    
-            let newPlauer = Player(
+            let newPlayer = Player(
                 playerID: FlexibleID("0"),
-                playerUserID: <#T##FlexibleID#>(userID),
-                playerEventID: <#T##FlexibleID#>(eventID),
+                playerUserID: FlexibleID(userID),
+                playerEventID: FlexibleID(eventID),
                 playerUser: nil,
                 playerEvent: nil
             )

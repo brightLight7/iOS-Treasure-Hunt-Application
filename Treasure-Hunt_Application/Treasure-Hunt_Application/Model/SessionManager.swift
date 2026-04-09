@@ -4,7 +4,7 @@
 //
 //  Created by Abdullah Sajid on 04/04/2026.
 //
-import foundation
+import Foundation
 
 /// Persists the logged-in state to UserDefaults so the session survives app restarts.
 final class SessionManager
@@ -19,7 +19,7 @@ final class SessionManager
         get
         {
             guard let data = UserDefaults.standard.data(forKey: userKey) else { return nil }
-            return try? JSONDecoder().decode(User.self, from: userKey)
+            return try? JSONDecoder().decode(User.self, from: data)
         }
         
         set

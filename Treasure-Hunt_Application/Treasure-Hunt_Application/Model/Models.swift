@@ -14,7 +14,7 @@ struct FlexibleID: Codable, Hashable, CustomStringConvertible
     let value: String
     var description: String { value }
     
-    init(_string: String) {value = string}
+    init(_ string: String) {value = string}
     
     init(from decoder: Decoder) throws
     {
@@ -23,9 +23,13 @@ struct FlexibleID: Codable, Hashable, CustomStringConvertible
         {
             value = String(intVal)
         }
+        else if let strVal = try? container.decode(String.self)
+        {
+            value = strVal
+        }
         else
         {
-            try container.encode(value)
+            value = ""
         }
     }
     
@@ -69,13 +73,13 @@ struct User: Codable, Identifiable
         case userID = "UserID"
         case userFirstname = "UserFirstname"
         case userLastname = "UserLastname"
-        case userPhone = "userPhone"
-        case userUsername = "userUsername"
-        case userPassword = "userPassword"
-        case userLatitude = "userLatitude"
-        case userLongitude = "userLongitude"
-        case userTimestamp = "userTimestamp"
-        case userImageURL = "userImageURL"
+        case userPhone = "UserPhone"
+        case userUsername = "UserUsername"
+        case userPassword = "UserPassword"
+        case userLatitude = "UserLatitude"
+        case userLongitude = "UserLongitude"
+        case userTimestamp = "UserTimestamp"
+        case userImageURL = "UserImageURL"
     }
     
     func encode(to encoder: Encoder) throws
@@ -117,15 +121,15 @@ struct Event: Codable, Identifiable
     enum CodingKeys: String, CodingKey
     {
         case eventID = "EventID"
-        var eventName = "eventName"
-        var eventDescription = "eventDescription"
-        var eventOwnerID = "eventOwnerID"
-        var eventIsPublic = "eventIsPublic"
-        var eventStart = "eventStart"
-        var eventFinish = "eventFinish"
-        var eventStatusID = "eventStatusID"
-        var eventOwner = "eventOwner"
-        var eventStatus = "eventStatus"
+        case eventName = "EventName"
+        case eventDescription = "EventDescription"
+        case eventOwnerID = "EventOwnerID"
+        case eventIsPublic = "EventIspublic"
+        case eventStart = "EventStart"
+        case eventFinish = "EventFinish"
+        case eventStatusID = "EventStatusID"
+        case eventOwner = "EventOwner"
+        case eventStatus = "EventStatus"
     }
     
     func encode(to encoder: Encoder) throws
@@ -147,7 +151,7 @@ struct Event: Codable, Identifiable
 
 struct Status: Codable, Identifiable
 {
-    let statusID: FlexibleID
+    let statusID: FlexibleID?
     var statusName: String?
     var statusOrder: Int?
     
@@ -156,8 +160,8 @@ struct Status: Codable, Identifiable
     enum CodingKeys: String, CodingKey
     {
         case statusID = "StatusID"
-        case statusName = "statusName"
-        case statusOrder = "statusOrder"
+        case statusName = "StatusName"
+        case statusOrder = "StatusOrder"
     }
 }
 
@@ -169,17 +173,17 @@ struct Player: Codable, Identifiable
     var playerUserID: FlexibleID
     var playerEventID: FlexibleID
     var playerUser: User?
-    var playerEvent: User?
+    var playerEvent: Event?
     
     var id: String { playerID.value }
     
     enum CodingKeys: String, CodingKey
     {
         case playerID = "PlayerID"
-        case playerUserID = "playerUserID"
-        case playerEventID = "playerEventID"
-        case playerUser = "playerUser"
-        case playerEvent = "playerEvent"
+        case playerUserID = "PlayerUserID"
+        case playerEventID = "PlayerEventID"
+        case playerUser = "PlayerUser"
+        case playerEvent = "PlayerEvent"
     }
     
     func encode(to encoder: Encoder) throws
@@ -199,27 +203,27 @@ struct Cache: Codable, Identifiable
     var cacheName: String
     var cacheDescription: String
     var cacheEventID: FlexibleID
-    var cacheImageURL: String
+    var cacheImageURL: String?
     var cacheClue: String
-    var cachePoints: String
-    var cacheLatitude: String
-    var cacheLongitude: String
+    var cachePoints: Double
+    var cacheLatitude: Double
+    var cacheLongitude: Double
     var cacheEvent: Event?
     
     var id: String { cacheID.value }
     
     enum CodingKeys: String, CodingKey
     {
-        case cacheID = "cacheID"
-        case cacheName = "cacheName"
-        case cacheDescription = "cacheDescription"
-        case cacheEventID = "cacheEventID"
-        case cacheImageURL = "cacheImageURL"
-        case cacheClue = "cacheClue"
-        case cachePoints = "cachePoints"
-        case cacheLatitude = "cacheLatitude"
-        case cacheLongitude = "cacheLongitude"
-        case cacheEvent = "cacheEvent"
+        case cacheID = "CacheID"
+        case cacheName = "CacheName"
+        case cacheDescription = "CacheDescription"
+        case cacheEventID = "CacheEventID"
+        case cacheImageURL = "CacheImageURL"
+        case cacheClue = "CacheClue"
+        case cachePoints = "CachePoints"
+        case cacheLatitude = "CacheLatitude"
+        case cacheLongitude = "CacheLongitude"
+        case cacheEvent = "CacheEvent"
     }
     
     func encode(to encoder: Encoder) throws
@@ -235,7 +239,6 @@ struct Cache: Codable, Identifiable
         try container.encode(cachePoints, forKey: .cachePoints)
         try container.encode(cacheLatitude, forKey: .cacheLatitude)
         try container.encode(cacheLongitude, forKey: .cacheLongitude)
-        try container.encode(cacheEvent, forKey: .cacheEvent)
     }
 }
 
@@ -256,19 +259,19 @@ struct Find: Codable, Identifiable
     
     enum CodingKeys: String, CodingKey
     {
-        case findID = "findID"
-        case findPlayerID = "findPlayerID"
-        case findCacheID = "findCacheID"
-        case findDatetime = "findDatetime"
-        case findImageURL = "findImageURL"
-        case findPlayer = "findPlayer"
-        case findCache = "findCache"
+        case findID = "FindID"
+        case findPlayerID = "FindPlayerID"
+        case findCacheID = "FindCacheID"
+        case findDatetime = "FindDatetime"
+        case findImageURL = "FindImageURL"
+        case findPlayer = "FindPlayer"
+        case findCache = "FindCache"
     }
     
     func encode(to encoder: Encoder) throws
     {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        if !cacheID.isNew { try container.encode(findID, forKey: .findID) }
+        if !findID.isNew { try container.encode(findID, forKey: .findID) }
         
         try container.encode(findPlayerID, forKey: .findPlayerID)
         try container.encode(findCacheID, forKey: .findCacheID)
@@ -287,7 +290,7 @@ struct CacheWithStatus: Identifiable
     var id: String { cache.id }
 }
 
-struct LeaderBoardEntry: Identifiable
+struct LeaderboardEntry: Identifiable
 {
     let player: Player
     let totalPoints: Double

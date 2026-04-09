@@ -41,7 +41,7 @@ struct LoginView: View {
                     VStack(spacing: 16)
                     {
                         GQTextField(title: "Username", text: $username, icon: "person")
-                        GQTextField(title: "Password", text: password, icon: "lock", isSecure: true)
+                        GQTextField(title: "Password", text: $password, icon: "lock", isSecure: true)
                     }
                     .padding(.horizontal)
                     
@@ -62,9 +62,7 @@ struct LoginView: View {
                                                         username, password: password)
                             
                         }
-                    }
-                label:
-                    {
+                    } label: {
                         Group
                         {
                             if authController.isLoading
@@ -74,21 +72,26 @@ struct LoginView: View {
                             else
                             {
                                 Text("Log In")
-                                    .fontweight(.semibold)
+                                    .fontWeight(.semibold)
                             }
                         }
                         .frame(maxWidth: .infinity)
-                        .padding(.horizontal)
-                        
-                        Button("Don't you have an account? Register")
-                        {
-                            showRegister = true
-                        }
-                        .font(.footnote)
-                        .foregroundStyle(.green)
-                        
-                        Spacer()
+                        .padding()
+                        .background(.green)
+                        .foregroundStyle(.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 14))
                     }
+                    .disabled(authController.isLoading)
+                    .padding(.horizontal)
+                    
+                    Button("Don't have an account? Register")
+                    {
+                        showRegister = true
+                    }
+                    .font(.footnote)
+                    .foregroundStyle(.green)
+                    
+                    Spacer()
                 }
                 .navigationDestination(isPresented: $showRegister)
                 {

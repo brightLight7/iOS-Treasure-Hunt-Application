@@ -75,7 +75,7 @@ final class AuthController : ObservableObject
         errorMessage = nil
         
         let newUser = User(
-            userID: <#T##FlexibleID#>("0"), userFirstname: firstname, userLastname: lastname, userPhone: phone, userUsername: username, userPassword: password, userLatitude: 0, userLongitude: 0, userTimestamp: 0, userImageURL: "https://placehold.co/300x300/png"
+            userID: FlexibleID("0"), userFirstname: firstname, userLastname: lastname, userPhone: phone, userUsername: username, userPassword: password, userLatitude: 0, userLongitude: 0, userTimestamp: 0, userImageURL: "https://placehold.co/300x300/png"
         )
         
         do

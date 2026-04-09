@@ -15,9 +15,9 @@ import Combine
 @MainActor
 final class EventController: ObservableObject {
     
-    @Published var event: [Event] = []
+    @Published var events: [Event] = []
     @Published var myEvents: [Event] = []
-    @published var statuses: [Status] = []
+    @Published var statuses: [Status] = []
     @Published var isLoading = false
     @Published var errorMessage: String?
     

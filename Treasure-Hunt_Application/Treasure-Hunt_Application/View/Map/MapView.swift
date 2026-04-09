@@ -19,7 +19,7 @@ struct MapView: View {
             Map(position: $position) {
                 UserAnnotation()
                 ForEach(mapController.caches) { item in
-                    Annotation(item.cache.cacheName, coordinate: <#T##CLLocationCoordinate2D#>(
+                    Annotation(item.cache.cacheName, coordinate: CLLocationCoordinate2D(
                         latitude: item.cache.cacheLatitude,
                         longitude: item.cache.cacheLongitude
                     )) {
@@ -42,16 +42,17 @@ struct MapView: View {
                     if let loc = locationService.userLocation {
                         withAnimation {
                             position = .camera(MapCamera(
-                                centerCoordinate: loc.coordinate
+                                centerCoordinate: loc.coordinate,
                                 distance: 1000
                             ))
                         }
-                    } label: {
-                        Image(systemName: "location.fill")
-                            .padding(14)
-                            .background(.ultraThinMaterial)
-                            .clipShape(Circle())
-                            .shadow(radius: 4)
+                    }
+                } label: {
+                    Image(systemName: "location.fill")
+                        .padding(14)
+                        .background(.ultraThinMaterial)
+                        .clipShape(Circle())
+                        .shadow(radius: 4)
                     }
                     
                     Button {
@@ -66,7 +67,8 @@ struct MapView: View {
                 }
                 .padding()
             }
-            .navigationtitle("Explore")
+        
+            .navigationTitle("Explore")
             .sheet(item: $selectedCache) { item in
                 CacheDetailView(cacheWithStatus: item)
                     .environmentObject(mapController)
@@ -103,7 +105,7 @@ struct CacheAnnotationView: View {
             
             Image(systemName: iconName)
                 .foregroundStyle(.white)
-                .font(.system(size: 16m weight: .bold))
+                .font(.system(size: 16, weight: .bold))
         }
         .scaleEffect(isNearby ? 1.2 : 1.0)
         .animation(.spring(response: 0.3), value: isNearby)

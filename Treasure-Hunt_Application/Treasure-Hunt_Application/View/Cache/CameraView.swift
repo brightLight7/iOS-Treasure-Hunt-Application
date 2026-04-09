@@ -10,7 +10,7 @@ import UIKit
 
 struct CameraView: UIViewControllerRepresentable {
     @Binding var imageURL: String?
-    @Environment(\dismiss) var dismiss
+    @Environment(\.dismiss) var dismiss
     
     func makeCoordinator() -> Coordinator { Coordinator(self) }
     
