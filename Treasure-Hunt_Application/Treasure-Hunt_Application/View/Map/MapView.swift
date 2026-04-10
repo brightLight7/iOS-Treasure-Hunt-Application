@@ -15,85 +15,83 @@ struct MapView: View {
     @State private var position: MapCameraPosition = .automatic
     
     var body: some View {
-        NavigationStack {
-            ZStack(alignment: .bottomTrailing) {
-                Map(position: $position) {
-                    UserAnnotation()
-                    ForEach(mapController.caches) { item in
-                        Annotation(item.cache.cacheName, coordinate: CLLocationCoordinate2D(
-                            latitude: item.cache.cacheLatitude,
-                            longitude: item.cache.cacheLongitude
-                        )) {
-                            CacheAnnotationView(
-                                cacheWithStatus: item,
-                                isNearby: mapController.canUnlock(cache: item.cache)
-                            )
-                            .onTapGesture { selectedCache = item }
-                        }
+        
+        ZStack(alignment: .bottomTrailing) {
+            Map(position: $position) {
+                UserAnnotation()
+                ForEach(mapController.caches) { item in
+                    Annotation(item.cache.cacheName, coordinate: CLLocationCoordinate2D(
+                        latitude: item.cache.cacheLatitude,
+                        longitude: item.cache.cacheLongitude
+                    )) {
+                        CacheAnnotationView(
+                            cacheWithStatus: item,
+                            isNearby: mapController.canUnlock(cache: item.cache)
+                        )
+                        .onTapGesture { selectedCache = item }
                     }
                 }
-                .ignoresSafeArea(edges: .top)
-                .mapControls {
-                    MapCompass()
-                    MapScaleView()
-                }
-                
-                VStack(spacing: 12) {
-                    Button {
-                        if let loc = locationService.userLocation {
-                            withAnimation {
-                                position = .camera(MapCamera(
-                                    centerCoordinate: loc.coordinate,
-                                    distance: 1000
-                                ))
-                            }
-                        }
-                    } label: {
-                        Image(systemName: "location.fill")
-                            .padding(14)
-                            .background(.ultraThinMaterial)
-                            .clipShape(Circle())
-                            .shadow(radius: 4)
-                    }
-                    
-                    Button {
-                        Task { await mapController.loadGlobalCaches() }
-                    } label: {
-                        Image(systemName: "arrow.clockwise")
-                            .padding(14)
-                            .background(.ultraThinMaterial)
-                            .clipShape(Circle())
-                            .shadow(radius: 4)
-                    }
-                }
-                .padding()
+            }
+            .ignoresSafeArea(edges: .top)
+            .mapControls {
+                MapCompass()
+                MapScaleView()
             }
             
-            .navigationTitle("Explore")
-            .sheet(item: $selectedCache) { item in
-                CacheDetailView(cacheWithStatus: item)
-                    .environmentObject(mapController)
-                    .environmentObject(locationService)
-            }
-            .task {
-                mapController.setup(locationService: locationService)
-                locationService.requestPermission()
-                await mapController.loadGlobalCaches()
-            }
-            .overlay {
-                if mapController.isLoading {
-                    ProgressView("Loading caches...")
-                        .padding()
+            VStack(spacing: 12) {
+                Button {
+                    if let loc = locationService.userLocation {
+                        withAnimation {
+                            position = .camera(MapCamera(
+                                centerCoordinate: loc.coordinate,
+                                distance: 1000
+                            ))
+                        }
+                    }
+                } label: {
+                    Image(systemName: "location.fill")
+                        .padding(14)
                         .background(.ultraThinMaterial)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .clipShape(Circle())
+                        .shadow(radius: 4)
                 }
+                
+                Button {
+                    Task { await mapController.loadGlobalCaches() }
+                } label: {
+                    Image(systemName: "arrow.clockwise")
+                        .padding(14)
+                        .background(.ultraThinMaterial)
+                        .clipShape(Circle())
+                        .shadow(radius: 4)
+                }
+            }
+            .padding()
+        }
+        .sheet(item: $selectedCache) { item in
+            CacheDetailView(cacheWithStatus: item)
+                .environmentObject(mapController)
+                .environmentObject(locationService)
+        }
+        .task {
+            mapController.setup(locationService: locationService)
+            locationService.requestPermission()
+            await mapController.loadGlobalCaches()
+        }
+        .overlay {
+            if mapController.isLoading {
+                ProgressView("Loading caches...")
+                    .padding()
+                    .background(.ultraThinMaterial)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
             }
         }
     }
 }
-    
+
+
 // MARK: - Cache pin annotation view
-    
+
 struct CacheAnnotationView: View {
     let cacheWithStatus: CacheWithStatus
     let isNearby: Bool
