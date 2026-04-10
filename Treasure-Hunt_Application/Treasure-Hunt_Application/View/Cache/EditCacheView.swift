@@ -1,30 +1,42 @@
 //
-//  CreateCacheView.swift
+//  EditCacheView.swift
 //  Treasure-Hunt_Application
 //
-//  Created by Reda Ejhani on 07/04/2026.
+//  Created by Reda Ejhani on 10/04/2026.
 //
 
 import SwiftUI
-import MapKit
 import CoreLocation
 
-struct CreateCacheView: View {
+struct EditCacheView: View {
     @Environment(\.dismiss) var dismiss
-    let event: Event
-    var onCreated: ((Cache) -> Void)?
-    
-    @State private var name = ""
-    @State private var description = ""
-    @State private var clue = ""
-    @State private var points = 10.0
-    @State private var proximityRadius = 30.0
-    @State private var latitude = ""
-    @State private var longitude = ""
+    @EnvironmentObject var locationService: LocationService
+
+    let cache: Cache
+    var onUpdated: ((Cache) -> Void)?
+
+    @State private var name: String
+    @State private var description: String
+    @State private var clue: String
+    @State private var points: Double
+    @State private var proximityRadius: Double
+    @State private var latitude: String
+    @State private var longitude: String
     @State private var isLoading = false
     @State private var errorMessage: String?
     
-    @EnvironmentObject var locationService: LocationService
+    init(cache: Cache, onUpdated: ((Cache) -> Void)? = nil) {
+        self.cache = cache
+        self.onUpdated = onUpdated
+        _name        = State(initialValue: cache.cacheName)
+        _description = State(initialValue: cache.cacheDescription)
+        _clue        = State(initialValue: cache.cacheClue)
+        _points      = State(initialValue: cache.cachePoints)
+        _latitude    = State(initialValue: String(format: "%.6f", cache.cacheLatitude))
+        _longitude   = State(initialValue: String(format: "%.6f", cache.cacheLongitude))
+        let stored = UserDefaults.standard.double(forKey: "proximity_\(cache.cacheID.value)")
+        _proximityRadius = State(initialValue: stored > 0 ? stored : 30.0)
+    }
     
     var body: some View {
         NavigationStack {
@@ -36,11 +48,11 @@ struct CreateCacheView: View {
                     TextField("Clue or Riddle", text: $clue, axis: .vertical)
                         .lineLimit(3)
                 }
-                
+
                 Section("Points Value") {
                     Stepper("\(Int(points)) points", value: $points, in: 1...100, step: 5)
                 }
-                
+
                 Section {
                     Stepper("Unlock radius: \(Int(proximityRadius)) m",
                             value: $proximityRadius, in: 5...200, step: 5)
@@ -50,29 +62,29 @@ struct CreateCacheView: View {
                 } header: {
                     Text("Proximity")
                 }
-                
+
                 Section("GPS Location") {
                     TextField("Latitude", text: $latitude)
                         .keyboardType(.decimalPad)
                     TextField("Longitude", text: $longitude)
                         .keyboardType(.decimalPad)
-                    
+
                     Button("Use My Current Location") {
                         if let loc = locationService.userLocation {
-                            latitude = String(format: "%.6f", loc.coordinate.latitude)
+                            latitude  = String(format: "%.6f", loc.coordinate.latitude)
                             longitude = String(format: "%.6f", loc.coordinate.longitude)
                         }
                     }
                     .foregroundStyle(.green)
                 }
-                
+
                 if let err = errorMessage {
                     Section {
                         Text(err).foregroundStyle(.red).font(.caption)
                     }
                 }
             }
-            .navigationTitle("New Cache")
+            .navigationTitle("Edit Cache")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -91,7 +103,7 @@ struct CreateCacheView: View {
     }
     
     private func save() async {
-        guard !name.isEmpty else {
+        guard !name.isEmpty, !clue.isEmpty else {
             errorMessage = "Please fill in all required fields."
             return
         }
@@ -100,22 +112,17 @@ struct CreateCacheView: View {
             return
         }
         isLoading = true
-        let cache = Cache(
-            cacheID: FlexibleID("0"),
-            cacheName: name,
-            cacheDescription: description,
-            cacheEventID: event.eventID,
-            cacheImageURL: nil,
-            cacheClue: clue,
-            cachePoints: points,
-            cacheLatitude: lat,
-            cacheLongitude: lon,
-            cacheEvent: nil
-            )
+        var updated = cache
+        updated.cacheName        = name
+        updated.cacheDescription = description
+        updated.cacheClue        = clue
+        updated.cachePoints      = points
+        updated.cacheLatitude    = lat
+        updated.cacheLongitude   = lon
         do {
-            let created = try await ApiManager.shared.createCache(cache)
-            UserDefaults.standard.set(proximityRadius, forKey: "proximity_\(created.cacheID.value)")
-            onCreated?(created)
+            let saved = try await ApiManager.shared.updateCache(updated)
+            UserDefaults.standard.set(proximityRadius, forKey: "proximity_\(saved.cacheID.value)")
+            onUpdated?(saved)
             dismiss()
         } catch {
             errorMessage = error.localizedDescription
