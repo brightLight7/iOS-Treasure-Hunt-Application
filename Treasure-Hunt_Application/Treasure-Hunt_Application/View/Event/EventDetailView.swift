@@ -17,6 +17,7 @@ struct EventDetailView: View {
     @State private var isJoining = false
     @State private var hasJoined = false
     @State private var showAddCache = false
+    @State private var showEditEvent = false
     @State private var showDeleteConfirm = false
     @State private var currentEvent: Event
     @State private var cacheToEdit: Cache?
