@@ -112,9 +112,9 @@ struct CacheAnnotationView: View {
     }
     
     private var annotationColor: Color {
-        if cacheWithStatus.isFound { return .gray }
+        if cacheWithStatus.isFound { return .green }
         if isNearby { return .orange }
-        return .green
+        return .red
     }
     
     private var iconName: String {
