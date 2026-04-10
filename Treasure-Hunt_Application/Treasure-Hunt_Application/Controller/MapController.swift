@@ -26,7 +26,6 @@ final class MapController: ObservableObject {
     private let api = ApiManager.shared
     private let session = SessionManager.shared
     private var locationService: LocationService?
-    private var playerID: String?
     
     func setup(locationService: LocationService) {
         self.locationService = locationService
@@ -75,7 +74,11 @@ final class MapController: ObservableObject {
     // MARK: - Proximity check
     
     func canUnlock(cache: Cache) -> Bool {
-        locationService?.isNearby(cache: cache) ?? false
+        guard let locationService,
+              let dist = locationService.distance(to: cache) else { return false }
+        let stored = UserDefaults.standard.double(forKey: "proximity_\(cache.cacheID.value)")
+        let threshold = stored > 0 ? stored : 30.0
+        return dist <= threshold
     }
     
     // MARK: - Log a find
@@ -138,11 +141,9 @@ final class MapController: ObservableObject {
     }
     
     private func resolvePlayerID(forUserID userID: String, eventID: String) async -> String? {
-        if let pid = playerID { return pid }
         do {
             let players = try await api.getPlayers(forEventID: eventID)
             if let p = players.first(where: { $0.playerUserID.value == userID }) {
-                self.playerID = p.playerID.value
                 return p.playerID.value
             }
                                                    
@@ -155,7 +156,6 @@ final class MapController: ObservableObject {
             )
             
             let created = try await api.createPlayer(newPlayer)
-            self.playerID = created.playerID.value
             return created.playerID.value
         } catch {
             return nil

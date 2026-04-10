@@ -239,8 +239,7 @@ struct CacheDetailView: View {
             if !isFound {
                 if let urlString = capturedImageURL,
                    let url = URL(string: urlString),
-                   let data = try? Data(contentsOf: url),
-                   let uiImage = UIImage(data: data) {
+                   let uiImage = UIImage(contentsOfFile: url.path) {
                     VStack(spacing: 8) {
                         HStack {
                             Image(systemName: "checkmark.circle.fill").foregroundStyle(.green)

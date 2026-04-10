@@ -36,8 +36,14 @@ final class EventController: ObservableObject {
             events = evts
             statuses = stats
             if let user = session.currentUser {
-                myEvents = evts.filter { $0.eventOwnerID.value ==
-                    user.userID.value }
+                let players = (try? await api.getPlayers()) ?? []
+                let myEventIDs = Set(players
+                    .filter { $0.playerUserID.value == user.userID.value }
+                    .map { $0.playerEventID.value })
+                myEvents = evts.filter {
+                    myEventIDs.contains($0.eventID.value) ||
+                    $0.eventOwnerID.value == user.userID.value
+                }
             }
         } catch {
             errorMessage = error.localizedDescription
