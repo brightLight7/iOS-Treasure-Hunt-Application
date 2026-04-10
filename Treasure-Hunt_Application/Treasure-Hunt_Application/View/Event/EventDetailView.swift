@@ -17,13 +17,23 @@ struct EventDetailView: View {
     @State private var isJoining = false
     @State private var hasJoined = false
     @State private var showAddCache = false
+    @State private var showDeleteConfirm = false
+    @State private var currentEvent: Event
+    @State private var cacheToEdit: Cache?
     @State private var selectedTab = 0
     @State private var isLoading = false
+    
+    init(event: Event) {
+        self.event = event
+        _currentEvent = State(initialValue: event)
+    }
     
     // MARK: Cache tab
     private var isOwner: Bool {
         event.eventOwnerID.value == SessionManager.shared.currentUser?.userID.value
     }
+    
+    @Environment(\.dismiss) var dismiss
     
     var body: some View {
         VStack(spacing: 0) {
@@ -40,19 +50,31 @@ struct EventDetailView: View {
                 leaderboardTab
             }
         }
-        .navigationTitle(event.eventName)
+        .navigationTitle(currentEvent.eventName)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             if isOwner {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button { showAddCache = true } label: {
-                        Image(systemName: "plus")
+                    Menu {
+                        Button { showAddCache = true } label: {
+                            Label("Add Cache", systemImage: "plus")
+                        }
+                        Button { showEditEvent = true } label: {
+                            Label("Edit Event", systemImage: "pencil")
+                        }
+                        Button(role: .destructive) {
+                            showDeleteConfirm = true
+                        } label: {
+                            Label("Delete Event", systemImage: "trash")
+                        }
+                    } label: {
+                        Image(systemName: "ellipsis.circle")
                     }
                 }
             }
         }
         .sheet(isPresented: $showAddCache) {
-            CreateCacheView(event: event) { newCache in
+            CreateCacheView(event: currentEvent) { newCache in
                 caches.append(newCache)
             }
             .environmentObject(locationService)
@@ -77,7 +99,7 @@ struct EventDetailView: View {
                             if isJoining { ProgressView() }
                             Text(hasJoined ? "Joined ✓" : "Join Event") .fontWeight(.semibold)
                         }
-                        .frame(maxWidth: .infinity).frame(maxWidth: .infinity)
+                        .frame(maxWidth: .infinity)
                         .padding(.vertical, 6)
                     }
                     .disabled(hasJoined)
@@ -92,6 +114,16 @@ struct EventDetailView: View {
                         .font(.subheadline)
                 } else {
                     ForEach(caches) { cache in CacheRowView(cache: cache)
+                            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                if isOwner {
+                                    Button {
+                                        cacheToEdit = cache
+                                    } label: {
+                                        Label("Edit", systemImage: "pencil")
+                                    }
+                                    .tint(.blue)
+                                }
+                            }
                     }
                 }
             }
