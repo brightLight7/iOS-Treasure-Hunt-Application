@@ -80,6 +80,34 @@ struct EventDetailView: View {
             }
             .environmentObject(locationService)
         }
+        
+        .sheet(item: $cacheToEdit) { cache in
+            EditCacheView(cache: cache) { updated in
+                if let idx = caches.firstIndex(where: { $0.cacheID.value == updated.cacheID.value }) {
+                    caches[idx] = updated
+                }
+            }
+            .environmentObject(locationService)
+        }
+        .sheet(isPresented: $showEditEvent) {
+            EditEventView(event: currentEvent) { updated in
+                currentEvent = updated
+            }
+            .environmentObject(eventController)
+        }
+        .confirmationDialog("Delete Event", isPresented: $showDeleteConfirm, titleVisibility: .visible) {
+            Button("Delete", role: .destructive) {
+                Task {
+                await eventController.deleteEvent(currentEvent)
+                dismiss()
+            }
+        }
+        Button("Cancel", role: .cancel) {}
+    } message: {
+        Text("This will permanently delete \"\(currentEvent.eventName)\" and cannot be undone.")
+    }
+            
+                
         .task { await loadData() }
     }
     
