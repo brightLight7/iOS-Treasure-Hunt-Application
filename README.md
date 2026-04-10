@@ -163,6 +163,7 @@ All payloads are JSON. The API returns IDs as integers, which are decoded into a
 |---|---|
 | **Abdullah Sajid** | iOS Development — Models, API layer, Authentication |
 | **Reda Ejhani** | iOS Development — Map, Location services, Cache views |
+| **Nik Kona** | iOS Development — Events, Leaderboard, Profile |
 
 ---
 
