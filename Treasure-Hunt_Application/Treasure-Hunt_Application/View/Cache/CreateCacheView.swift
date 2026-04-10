@@ -19,8 +19,11 @@ struct CreateCacheView: View {
     @State private var clue = ""
     @State private var points = 10.0
     @State private var proximityRadius = 30.0
-    @State private var latitude = ""
-    @State private var longitude = ""
+    @State private var pinCoordinate: CLLocationCoordinate2D = CLLocationCoordinate2D(latitude: 51.4123, longitude: -0.3008)
+    @State private var cameraPosition: MapCameraPosition = .region(MKCoordinateRegion(
+        center: CLLocationCoordinate2D(latitude: 51.4123, longitude: -0.3008),
+        span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+    ))
     @State private var isLoading = false
     @State private var errorMessage: String?
     
@@ -51,19 +54,37 @@ struct CreateCacheView: View {
                     Text("Proximity")
                 }
                 
-                Section("GPS Location") {
-                    TextField("Latitude", text: $latitude)
-                        .keyboardType(.decimalPad)
-                    TextField("Longitude", text: $longitude)
-                        .keyboardType(.decimalPad)
-                    
+                Section("Cache Location") {
+                    MapReader { proxy in
+                        Map(position: $cameraPosition) {
+                            Annotation("", coordinate: pinCoordinate) {
+                                Image(systemName: "mappin.circle.fill")
+                                    .font(.largeTitle)
+                                    .foregroundStyle(.red)
+                            }
+                        }
+                        .frame(height: 220)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .onTapGesture { position in
+                            if let coord = proxy.convert(position, from: .local) {
+                                pinCoordinate = coord
+                            }
+                        }
+                    }
                     Button("Use My Current Location") {
                         if let loc = locationService.userLocation {
-                            latitude = String(format: "%.6f", loc.coordinate.latitude)
-                            longitude = String(format: "%.6f", loc.coordinate.longitude)
+                            pinCoordinate = loc.coordinate
+                            cameraPosition = .region(MKCoordinateRegion(
+                                center: loc.coordinate,
+                                span: MKCoordinateSpan(latitudeDelta: 0.005, longitudeDelta: 0.005)
+                            ))
                         }
                     }
                     .foregroundStyle(.green)
+                    Text("Swipe to pan · Pinch to zoom · Tap to place pin")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .center)
                 }
                 
                 if let err = errorMessage {
@@ -95,10 +116,6 @@ struct CreateCacheView: View {
             errorMessage = "Please fill in all required fields."
             return
         }
-        guard let lat = Double(latitude), let lon = Double(longitude) else {
-            errorMessage = "Invalid coordinates."
-            return
-        }
         isLoading = true
         let cache = Cache(
             cacheID: FlexibleID("0"),
@@ -108,8 +125,8 @@ struct CreateCacheView: View {
             cacheImageURL: nil,
             cacheClue: clue,
             cachePoints: points,
-            cacheLatitude: lat,
-            cacheLongitude: lon,
+            cacheLatitude: pinCoordinate.latitude,
+            cacheLongitude: pinCoordinate.longitude,
             cacheEvent: nil
             )
         do {

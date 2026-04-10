@@ -162,6 +162,15 @@ struct EventDetailView: View {
                                     .tint(.blue)
                                 }
                             }
+                            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                if isOwner {
+                                    Button(role: .destructive) {
+                                        Task { await deleteCache(cache) }
+                                    } label: {
+                                        Label("Delete", systemImage: "trash")
+                                    }
+                                }
+                            }
                     }
                 }
             }
@@ -282,6 +291,14 @@ struct EventDetailView: View {
     }
     
     
+    // MARK: Delete cache
+    
+    private func deleteCache(_ cache: Cache) async {
+        do {
+            try await ApiManager.shared.deleteCache(id: cache.cacheID.value)
+            caches.removeAll { $0.cacheID.value == cache.cacheID.value }
+        } catch { }
+    }
     
     // MARK: Data Loading
     
