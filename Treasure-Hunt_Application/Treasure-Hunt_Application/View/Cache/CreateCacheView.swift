@@ -91,7 +91,7 @@ struct CreateCacheView: View {
     }
     
     private func save() async {
-        guard !name.isEmpty else {
+        guard !name.isEmpty, !clue.isEmpty else {
             errorMessage = "Please fill in all required fields."
             return
         }

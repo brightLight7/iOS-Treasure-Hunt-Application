@@ -23,6 +23,10 @@ struct EventDetailView: View {
     @State private var cacheToEdit: Cache?
     @State private var selectedTab = 0
     @State private var isLoading = false
+    @State private var players: [Player] = []
+    @State private var allUsers: [User] = []
+    @State private var invitingID: String?
+    
     
     init(event: Event) {
         self.event = event
@@ -41,14 +45,17 @@ struct EventDetailView: View {
             Picker("", selection: $selectedTab) {
                 Text("Caches").tag(0)
                 Text("Leaderboard").tag(1)
+                Text("Players").tag(2)
             }
             .pickerStyle(.segmented)
             .padding()
             
             if selectedTab == 0 {
                 cachesTab
-            } else {
+            } else if selectedTab == 1 {
                 leaderboardTab
+            } else {
+                playersTab
             }
         }
         .navigationTitle(currentEvent.eventName)
@@ -60,6 +67,7 @@ struct EventDetailView: View {
                         Button { showAddCache = true } label: {
                             Label("Add Cache", systemImage: "plus")
                         }
+                        
                         Button { showEditEvent = true } label: {
                             Label("Edit Event", systemImage: "pencil")
                         }
@@ -81,6 +89,7 @@ struct EventDetailView: View {
             .environmentObject(locationService)
         }
         
+        
         .sheet(item: $cacheToEdit) { cache in
             EditCacheView(cache: cache) { updated in
                 if let idx = caches.firstIndex(where: { $0.cacheID.value == updated.cacheID.value }) {
@@ -98,16 +107,16 @@ struct EventDetailView: View {
         .confirmationDialog("Delete Event", isPresented: $showDeleteConfirm, titleVisibility: .visible) {
             Button("Delete", role: .destructive) {
                 Task {
-                await eventController.deleteEvent(currentEvent)
-                dismiss()
+                    await eventController.deleteEvent(currentEvent)
+                    dismiss()
+                }
             }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This will permanently delete \"\(currentEvent.eventName)\" and cannot be undone.")
         }
-        Button("Cancel", role: .cancel) {}
-    } message: {
-        Text("This will permanently delete \"\(currentEvent.eventName)\" and cannot be undone.")
-    }
-            
-                
+        
+        
         .task { await loadData() }
     }
     
@@ -179,6 +188,100 @@ struct EventDetailView: View {
         }
     }
     
+    // MARK: Players Tab
+    
+    private var playersTab: some View {
+        List {
+            Section("Joined (\(players.count))") {
+                if players.isEmpty {
+                    Text("No players yet")
+                        .foregroundStyle(.secondary)
+                        .font(.subheadline)
+                } else {
+                    ForEach(players) { player in
+                        HStack {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(player.playerUser?.fullName ?? "Player")
+                                    .font(.headline)
+                                if let username = player.playerUser?.userUsername {
+                                    Text("@\(username)")
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+                            if player.playerUserID.value == currentEvent.eventOwnerID.value {
+                                Spacer()
+                                Text("Owner")
+                                    .font(.caption.bold())
+                                    .foregroundStyle(.green)
+                            }
+                        }
+                        .padding(.vertical, 2)
+                    }
+                }
+            }
+            
+            if isOwner && !currentEvent.eventIsPublic {
+                let joinedIDs = Set(players.map { $0.playerUserID.value })
+                let uninvited = allUsers.filter { !joinedIDs.contains($0.userID.value) }
+                
+                Section("Invite Players") {
+                    if uninvited.isEmpty {
+                        Text("Everyone has been invited")
+                            .foregroundStyle(.secondary)
+                            .font(.subheadline)
+                    } else {
+                        ForEach(uninvited) { user in
+                            HStack {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(user.fullName)
+                                        .font(.headline)
+                                    Text("@\(user.userUsername)")
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                                Spacer()
+                                if invitingID == user.userID.value {
+                                    ProgressView()
+                                } else {
+                                    Button("Invite") {
+                                        Task { await invite(user) }
+                                    }
+                                    .buttonStyle(.borderedProminent)
+                                    .tint(.green)
+                                    .controlSize(.small)
+                                    .disabled(invitingID != nil)
+                                }
+                            }
+                            .padding(.vertical, 2)
+                        }
+                    }
+                }
+            }
+        }
+        .listStyle(.insetGrouped)
+        .refreshable { await loadData() }
+    }
+    
+    // MARK: Invite
+    
+    private func invite(_ user: User) async {
+        invitingID = user.userID.value
+        let player = Player(
+            playerID: FlexibleID("0"),
+            playerUserID: user.userID,
+            playerEventID: currentEvent.eventID,
+            playerUser: nil,
+            playerEvent: nil
+        )
+        do {
+            let created = try await ApiManager.shared.createPlayer(player)
+            players.append(created)
+        } catch { }
+        invitingID = nil
+    }
+    
+    
     
     // MARK: Data Loading
     
@@ -186,12 +289,18 @@ struct EventDetailView: View {
         isLoading = true
         async let cacheLoad = ApiManager.shared.getCaches(forEventID: event.eventID.value)
         async let lbLoad = eventController.leaderboard(forEventID: event.eventID.value)
+        async let playerLoad = ApiManager.shared.getPlayers(forEventID: event.eventID.value)
         if let loaded = try? await cacheLoad { caches = loaded }
         leaderboard = await lbLoad
+        players = (try? await playerLoad) ?? []
+        if isOwner && !currentEvent.eventIsPublic {
+            allUsers = (try? await ApiManager.shared.getUsers()) ?? []
+        }
         isLoading = false
     }
-}
     
+}
+
 // MARK: Cache row
 
 struct CacheRowView: View {
@@ -211,14 +320,14 @@ struct CacheRowView: View {
 struct LeaderboardRowView: View {
     let entry: LeaderboardEntry
     let rank: Int
-    
+
     var body: some View {
         HStack(spacing: 14) {
             Text("\(rank)")
                 .font(.title3.bold())
                 .foregroundStyle(rankColor)
                 .frame(width: 32)
-            
+
             VStack(alignment: .leading) {
                 Text(entry.player.playerUser?.fullName ?? "Player")
                     .font(.headline)
@@ -227,14 +336,14 @@ struct LeaderboardRowView: View {
                     .foregroundStyle(.secondary)
             }
             Spacer()
-            
+
             Text("\(Int(entry.totalPoints)) pts")
                 .font(.headline)
                 .foregroundStyle(Color.green)
         }
         .padding(.vertical, 4)
     }
-    
+
     private var rankColor: Color {
         switch rank {
         case 1: return .yellow

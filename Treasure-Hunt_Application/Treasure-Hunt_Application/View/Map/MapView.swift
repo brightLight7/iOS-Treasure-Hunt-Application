@@ -15,44 +15,45 @@ struct MapView: View {
     @State private var position: MapCameraPosition = .automatic
     
     var body: some View {
-        ZStack(alignment: .bottomTrailing) {
-            Map(position: $position) {
-                UserAnnotation()
-                ForEach(mapController.caches) { item in
-                    Annotation(item.cache.cacheName, coordinate: CLLocationCoordinate2D(
-                        latitude: item.cache.cacheLatitude,
-                        longitude: item.cache.cacheLongitude
-                    )) {
-                        CacheAnnotationView(
-                            cacheWithStatus: item,
-                            isNearby: mapController.canUnlock(cache: item.cache)
-                        )
-                        .onTapGesture { selectedCache = item }
-                    }
-                }
-            }
-            .ignoresSafeArea(edges: .top)
-            .mapControls {
-                MapCompass()
-                MapScaleView()
-            }
-            
-            VStack(spacing: 12) {
-                Button {
-                    if let loc = locationService.userLocation {
-                        withAnimation {
-                            position = .camera(MapCamera(
-                                centerCoordinate: loc.coordinate,
-                                distance: 1000
-                            ))
+        NavigationStack {
+            ZStack(alignment: .bottomTrailing) {
+                Map(position: $position) {
+                    UserAnnotation()
+                    ForEach(mapController.caches) { item in
+                        Annotation(item.cache.cacheName, coordinate: CLLocationCoordinate2D(
+                            latitude: item.cache.cacheLatitude,
+                            longitude: item.cache.cacheLongitude
+                        )) {
+                            CacheAnnotationView(
+                                cacheWithStatus: item,
+                                isNearby: mapController.canUnlock(cache: item.cache)
+                            )
+                            .onTapGesture { selectedCache = item }
                         }
                     }
-                } label: {
-                    Image(systemName: "location.fill")
-                        .padding(14)
-                        .background(.ultraThinMaterial)
-                        .clipShape(Circle())
-                        .shadow(radius: 4)
+                }
+                .ignoresSafeArea(edges: .top)
+                .mapControls {
+                    MapCompass()
+                    MapScaleView()
+                }
+                
+                VStack(spacing: 12) {
+                    Button {
+                        if let loc = locationService.userLocation {
+                            withAnimation {
+                                position = .camera(MapCamera(
+                                    centerCoordinate: loc.coordinate,
+                                    distance: 1000
+                                ))
+                            }
+                        }
+                    } label: {
+                        Image(systemName: "location.fill")
+                            .padding(14)
+                            .background(.ultraThinMaterial)
+                            .clipShape(Circle())
+                            .shadow(radius: 4)
                     }
                     
                     Button {
@@ -67,7 +68,7 @@ struct MapView: View {
                 }
                 .padding()
             }
-        
+            
             .navigationTitle("Explore")
             .sheet(item: $selectedCache) { item in
                 CacheDetailView(cacheWithStatus: item)
@@ -87,6 +88,7 @@ struct MapView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
             }
+        }
     }
 }
     
@@ -121,4 +123,3 @@ struct CacheAnnotationView: View {
         cacheWithStatus.isFound ? "checkmark" : "mappin"
     }
 }
-

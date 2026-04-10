@@ -12,14 +12,12 @@ struct GeoQuestApp: App
 {
     @StateObject private var authController = AuthController()
     @StateObject private var locationService = LocationService()
-    @StateObject private var pedometerService = PedometerService()
 
     var body: some Scene {
         WindowGroup {
             RootView()
                 .environmentObject(authController)
                 .environmentObject(locationService)
-                .environmentObject(pedometerService)
         }
     }
 }
