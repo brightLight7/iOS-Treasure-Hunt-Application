@@ -93,6 +93,31 @@ final class EventController: ObservableObject {
         }
     }
     
+    // MARK: Update Event
+    
+    func updateEvent(_ event: Event, name: String, description: String, start: Date, finish: Date, isPublic: Bool) async -> Event? {
+        let fmt = ISO8601DateFormatter()
+        var updated = event
+        updated.eventName = name
+        updated.eventDescription = description
+        updated.eventIsPublic = isPublic
+        updated.eventStart = fmt.string(from: start)
+        updated.eventFinish = fmt.string(from: finish)
+        do {
+            let saved = try await api.updateEvent(updated)
+            if let idx = events.firstIndex(where: { $0.eventID.value == saved.eventID.value }) {
+                events[idx] = saved
+            }
+            if let idx = myEvents.firstIndex(where: { $0.eventID.value == saved.eventID.value }) {
+                myEvents[idx] = saved
+            }
+            return saved
+        } catch {
+            errorMessage = error.localizedDescription
+            return nil
+        }
+    }
+    
     // MARK: Join Event
     
     func joinEvent(_ event: Event) async -> Bool {
